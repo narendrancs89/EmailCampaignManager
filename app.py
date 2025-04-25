@@ -39,7 +39,11 @@ app.config["MAIL_PORT"] = 587
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USERNAME"] = None
 app.config["MAIL_PASSWORD"] = None
-app.config["MAIL_DEFAULT_SENDER"] = "noreply@example.com"
+app.config["MAIL_DEFAULT_SENDER"] = "noreply@yourdomain.com"
+
+# Configure Brevo (for API-based email sending)
+app.config["BREVO_API_KEY"] = os.environ.get("BREVO_API_KEY")
+app.config["USE_BREVO_API"] = True if os.environ.get("BREVO_API_KEY") else False
 
 # Initialize extensions with app
 db.init_app(app)

@@ -20,98 +20,13 @@ import json
 import csv
 import io
 
-# Email helper functions
-def send_verification_email(email, token):
-    """Send an email verification link to the user"""
-    try:
-        verify_url = url_for('verify_email', token=token, _external=True)
-        msg = Message('Verify Your Email Address',
-                     sender=app.config['MAIL_DEFAULT_SENDER'],
-                     recipients=[email])
-        msg.body = f'''To verify your email address, visit the following link:
-{verify_url}
-
-If you did not make this request, simply ignore this email.
-'''
-        msg.html = f'''
-<p>To verify your email address, click the button below:</p>
-<p><a href="{verify_url}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a></p>
-<p>Or visit this link: <a href="{verify_url}">{verify_url}</a></p>
-<p>If you did not make this request, simply ignore this email.</p>
-'''
-        mail.send(msg)
-        return True
-    except Exception as e:
-        logging.error(f"Error sending verification email: {str(e)}")
-        return False
-
-def send_password_reset_email(email, token):
-    """Send a password reset link to the user"""
-    try:
-        reset_url = url_for('reset_password', token=token, _external=True)
-        msg = Message('Password Reset Request',
-                     sender=app.config['MAIL_DEFAULT_SENDER'],
-                     recipients=[email])
-        msg.body = f'''To reset your password, visit the following link:
-{reset_url}
-
-If you did not make this request, simply ignore this email.
-'''
-        msg.html = f'''
-<p>To reset your password, click the button below:</p>
-<p><a href="{reset_url}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
-<p>Or visit this link: <a href="{reset_url}">{reset_url}</a></p>
-<p>If you did not make this request, simply ignore this email.</p>
-<p>This link will expire in 1 hour.</p>
-'''
-        mail.send(msg)
-        return True
-    except Exception as e:
-        logging.error(f"Error sending password reset email: {str(e)}")
-        return False
-        
-def send_approval_notification(email, username):
-    """Send an approval notification to the user"""
-    try:
-        login_url = url_for('login', _external=True)
-        msg = Message('Account Approved',
-                     sender=app.config['MAIL_DEFAULT_SENDER'],
-                     recipients=[email])
-        msg.body = f'''Your account {username} has been approved!
-You can now log in at: {login_url}
-'''
-        msg.html = f'''
-<p>Congratulations! Your account <strong>{username}</strong> has been approved.</p>
-<p>You can now <a href="{login_url}">log in to your account</a>.</p>
-'''
-        mail.send(msg)
-        return True
-    except Exception as e:
-        logging.error(f"Error sending approval notification: {str(e)}")
-        return False
-        
-def send_rejection_notification(email, username, reason):
-    """Send a rejection notification to the user"""
-    try:
-        register_url = url_for('register', _external=True)
-        msg = Message('Account Registration Status',
-                     sender=app.config['MAIL_DEFAULT_SENDER'],
-                     recipients=[email])
-        msg.body = f'''Unfortunately, your account registration for {username} was not approved.
-Reason: {reason}
-
-You may register again at: {register_url}
-'''
-        msg.html = f'''
-<p>Unfortunately, your account registration for <strong>{username}</strong> was not approved.</p>
-<p><strong>Reason:</strong> {reason}</p>
-<p>You may <a href="{register_url}">register again</a> if you wish.</p>
-'''
-        mail.send(msg)
-        return True
-    except Exception as e:
-        logging.error(f"Error sending rejection notification: {str(e)}")
-        return False
+# Import email services
+from brevo_service import (
+    send_verification_email, 
+    send_password_reset_email,
+    send_approval_notification,
+    send_rejection_notification
+)
 
 @app.route('/')
 @app.route('/index')
@@ -261,6 +176,16 @@ def reset_password(token):
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Check if user is active
+    if not current_user.is_active:
+        flash('Your account is not active yet. Please wait for admin approval.', 'warning')
+        logout_user()
+        return redirect(url_for('login'))
+
+    # Check if user is admin, redirect to admin dashboard if true
+    if current_user.is_admin:
+        return redirect(url_for('admin_dashboard'))
+        
     # Get counts for dashboard widgets
     segment_count = EmailSegment.query.filter_by(user_id=current_user.id).count()
     template_count = EmailTemplate.query.filter_by(user_id=current_user.id).count()
@@ -276,6 +201,144 @@ def dashboard():
                            job_count=job_count,
                            smtp_count=smtp_count,
                            recent_jobs=recent_jobs)
+
+# Admin routes
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get pending registration requests
+    pending_requests = UserRegistrationRequest.query.filter_by(
+        email_verified=True, 
+        approved=False, 
+        rejected=False
+    ).order_by(UserRegistrationRequest.request_date.desc()).all()
+    
+    # Get recent approved users
+    recent_users = User.query.filter_by(is_active=True).order_by(User.created_at.desc()).limit(5).all()
+    
+    # Get admin email lists
+    email_lists = AdminEmailList.query.all()
+    
+    return render_template('admin_dashboard.html', 
+                           title='Admin Dashboard',
+                           pending_requests=pending_requests,
+                           recent_users=recent_users,
+                           email_lists=email_lists)
+
+@app.route('/admin/user-requests')
+@login_required
+def admin_user_requests():
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get all registration requests
+    pending_requests = UserRegistrationRequest.query.filter_by(
+        email_verified=True, 
+        approved=False, 
+        rejected=False
+    ).order_by(UserRegistrationRequest.request_date.desc()).all()
+    
+    approved_requests = UserRegistrationRequest.query.filter_by(
+        approved=True
+    ).order_by(UserRegistrationRequest.approval_date.desc()).all()
+    
+    rejected_requests = UserRegistrationRequest.query.filter_by(
+        rejected=True
+    ).order_by(UserRegistrationRequest.request_date.desc()).all()
+    
+    return render_template('admin_user_requests.html',
+                           title='User Registration Requests',
+                           pending_requests=pending_requests,
+                           approved_requests=approved_requests,
+                           rejected_requests=rejected_requests)
+
+@app.route('/admin/user-requests/<int:id>/approve', methods=['GET', 'POST'])
+@login_required
+def approve_user_request(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get registration request
+    reg_request = UserRegistrationRequest.query.get_or_404(id)
+    
+    # Check if request is already processed
+    if reg_request.approved or reg_request.rejected:
+        flash('This request has already been processed.', 'warning')
+        return redirect(url_for('admin_user_requests'))
+    
+    # Create new user from request
+    user = User(
+        username=reg_request.username,
+        email=reg_request.email,
+        password_hash=reg_request.password_hash,
+        email_verified=True,
+        is_active=True
+    )
+    
+    # Mark request as approved
+    reg_request.approved = True
+    reg_request.approved_by = current_user.id
+    reg_request.approval_date = datetime.utcnow()
+    
+    # Save changes
+    db.session.add(user)
+    db.session.commit()
+    
+    # Send approval notification
+    send_approval_notification(user.email, user.username)
+    
+    flash(f'User {user.username} has been approved successfully.', 'success')
+    return redirect(url_for('admin_user_requests'))
+
+@app.route('/admin/user-requests/<int:id>/reject', methods=['GET', 'POST'])
+@login_required
+def reject_user_request(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get registration request
+    reg_request = UserRegistrationRequest.query.get_or_404(id)
+    
+    # Check if request is already processed
+    if reg_request.approved or reg_request.rejected:
+        flash('This request has already been processed.', 'warning')
+        return redirect(url_for('admin_user_requests'))
+    
+    form = UserApprovalForm()
+    
+    if form.validate_on_submit():
+        # Mark request as rejected
+        reg_request.rejected = True
+        reg_request.rejection_reason = form.rejection_reason.data
+        
+        # Save changes
+        db.session.commit()
+        
+        # Send rejection notification
+        send_rejection_notification(
+            reg_request.email, 
+            reg_request.username, 
+            form.rejection_reason.data or "No reason provided."
+        )
+        
+        flash(f'User request for {reg_request.username} has been rejected.', 'success')
+        return redirect(url_for('admin_user_requests'))
+    
+    return render_template('reject_user_request.html',
+                           title='Reject User Request',
+                           form=form,
+                           request=reg_request)
 
 # Email Segments Routes
 @app.route('/segments')
