@@ -1,52 +1,103 @@
-/* Tooltip styles */
+/* Custom tooltip styling for email marketing best practices */
+
+/* Tooltip icon styling */
 .tooltip-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background-color: var(--bs-info);
-    color: #fff;
-    font-size: 12px;
-    text-align: center;
-    margin-left: 5px;
+    margin-left: 6px;
     cursor: help;
+    vertical-align: middle;
+    font-size: 0.75rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--bs-secondary);
+    color: var(--bs-light);
+    transition: all 0.2s ease;
 }
 
-/* Custom tooltip classes for bootstrap tooltips */
+.tooltip-icon:hover {
+    background-color: var(--bs-primary);
+}
+
+/* Bootstrap Tooltip Customization */
+.tooltip {
+    --bs-tooltip-max-width: 320px;
+    --bs-tooltip-padding-x: 12px;
+    --bs-tooltip-padding-y: 10px;
+    --bs-tooltip-font-size: 0.875rem;
+    --bs-tooltip-opacity: 1;
+    z-index: 1090;
+}
+
+/* Main tooltip styling */
 .tooltip-inner {
-    max-width: 300px;
-    padding: 10px;
-    font-size: 14px;
     text-align: left;
+    max-width: 320px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.tooltip-marketing-best-practice {
-    background-color: rgba(13, 110, 253, 0.95);
-    color: white;
     border-radius: 6px;
+    line-height: 1.5;
 }
 
+/* Tooltip type variations */
 .tooltip-marketing-best-practice .tooltip-inner {
-    border-left: 4px solid #0a58ca;
-}
-
-.tooltip-marketing-warning {
-    background-color: rgba(220, 53, 69, 0.95);
-    color: white;
-}
-
-.tooltip-marketing-warning .tooltip-inner {
-    border-left: 4px solid #bb2d3b;
-}
-
-.tooltip-marketing-idea {
-    background-color: rgba(25, 135, 84, 0.95);
-    color: white;
+    background-color: #374151;
+    border-left: 4px solid #0d6efd;
 }
 
 .tooltip-marketing-idea .tooltip-inner {
-    border-left: 4px solid #157347;
+    background-color: #374151;
+    border-left: 4px solid #20c997;
+}
+
+.tooltip-marketing-warning .tooltip-inner {
+    background-color: #374151;
+    border-left: 4px solid #ffc107;
+}
+
+.tooltip-marketing-info .tooltip-inner {
+    background-color: #374151;
+    border-left: 4px solid #0dcaf0;
+}
+
+/* Strong text styling in tooltips */
+.tooltip-inner strong {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+/* Bulletpoints in tooltips */
+.tooltip-inner ul {
+    margin: 5px 0;
+    padding-left: 20px;
+}
+
+.tooltip-inner li {
+    margin-bottom: 3px;
+}
+
+/* Arrow color adjustment */
+.tooltip-marketing-best-practice .tooltip-arrow::before {
+    border-right-color: #374151;
+}
+
+.tooltip-marketing-idea .tooltip-arrow::before {
+    border-right-color: #374151;
+}
+
+.tooltip-marketing-warning .tooltip-arrow::before {
+    border-right-color: #374151;
+}
+
+.tooltip-marketing-info .tooltip-arrow::before {
+    border-right-color: #374151;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .tooltip {
+        --bs-tooltip-max-width: 260px;
+    }
 }
