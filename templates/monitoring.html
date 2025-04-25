@@ -1,82 +1,167 @@
 {% extends "base.html" %}
 
-{% block title %}Monitoring Dashboard - Email Campaign Manager{% endblock %}
+{% block title %}Advanced Analytics Dashboard - Email Campaign Manager{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-chart-line me-2"></i>Monitoring Dashboard</h1>
-    <a href="{{ url_for('jobs') }}" class="btn btn-outline-primary">
-        <i class="fas fa-calendar-alt me-1"></i> View Jobs
-    </a>
+    <h1><i class="fas fa-chart-line me-2"></i>Advanced Analytics Dashboard</h1>
+    <div>
+        <a href="{{ url_for('jobs') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-calendar-alt me-1"></i> View Jobs
+        </a>
+        <button class="btn btn-outline-info" type="button" data-bs-toggle="collapse" data-bs-target="#filterOptions">
+            <i class="fas fa-filter me-1"></i> Filter Options
+        </button>
+    </div>
 </div>
 
-<div class="row mb-4">
-    <!-- Email Statistics Overview -->
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Email Campaign Statistics</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md">
-                        <div class="text-center">
-                            <div class="stats-counter">{{ total_emails }}</div>
-                            <div class="stats-label">Total Emails</div>
+<!-- Date Range Filter -->
+<div class="collapse mb-4" id="filterOptions">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Analytics</h5>
+        </div>
+        <div class="card-body">
+            <form id="date-filter-form" method="get" action="{{ url_for('monitoring') }}">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="from_date" class="form-label">From Date</label>
+                            <input type="text" class="form-control date-range-picker" id="from_date" name="from_date" value="{{ from_date }}" placeholder="Select start date">
                         </div>
                     </div>
-                    <div class="col-md">
-                        <div class="text-center">
-                            <div class="stats-counter">{{ sent_emails }}</div>
-                            <div class="stats-label">Sent</div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="to_date" class="form-label">To Date</label>
+                            <input type="text" class="form-control date-range-picker" id="to_date" name="to_date" value="{{ to_date }}" placeholder="Select end date">
                         </div>
                     </div>
-                    <div class="col-md">
-                        <div class="text-center">
-                            <div class="stats-counter">{{ failed_emails }}</div>
-                            <div class="stats-label">Failed</div>
-                        </div>
-                    </div>
-                    <div class="col-md">
-                        <div class="text-center">
-                            <div class="stats-counter">{{ opened_emails }}</div>
-                            <div class="stats-label">Opened</div>
-                        </div>
-                    </div>
-                    <div class="col-md">
-                        <div class="text-center">
-                            <div class="stats-counter">{{ clicked_emails }}</div>
-                            <div class="stats-label">Clicked</div>
-                        </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i> Apply Filter
+                        </button>
                     </div>
                 </div>
-                
-                <!-- Email Statistics Chart -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <canvas id="emailStatsChart" height="100"
-                            data-total="{{ total_emails }}"
-                            data-sent="{{ sent_emails }}"
-                            data-failed="{{ failed_emails }}"
-                            data-opened="{{ opened_emails }}"
-                            data-clicked="{{ clicked_emails }}">
-                        </canvas>
-                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Key Performance Metrics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3 mb-sm-0">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon text-success">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div class="stats-counter">{{ sent_emails }}</div>
+                <div class="stats-label">Emails Sent</div>
+                <div class="mt-2">
+                    <span class="badge bg-info" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total emails in selected period">
+                        {{ total_emails }} Total
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3 mb-sm-0">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon text-warning">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stats-counter">{{ opened_emails }}</div>
+                <div class="stats-label">Emails Opened</div>
+                <div class="mt-2">
+                    <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Percentage of sent emails that were opened">
+                        {{ "%.1f"|format(open_rate) }}% Open Rate
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3 mb-sm-0">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon text-primary">
+                    <i class="fas fa-mouse-pointer"></i>
+                </div>
+                <div class="stats-counter">{{ clicked_emails }}</div>
+                <div class="stats-label">Link Clicks</div>
+                <div class="mt-2">
+                    <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Percentage of opened emails that were clicked">
+                        {{ "%.1f"|format(click_to_open_rate) }}% CTR
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon text-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stats-counter">{{ failed_emails }}</div>
+                <div class="stats-label">Failed Deliveries</div>
+                <div class="mt-2">
+                    <span class="badge bg-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Percentage of emails that failed to deliver">
+                        {{ "%.1f"|format(bounce_rate) }}% Bounce Rate
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Time Series Chart -->
 <div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Email Performance Trends</h5>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Chart period">
+                    <button type="button" class="btn btn-outline-secondary active" data-period="week">Week</button>
+                    <button type="button" class="btn btn-outline-secondary" data-period="month">Month</button>
+                    <button type="button" class="btn btn-outline-secondary" data-period="quarter">90 Days</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="timeSeriesChart" height="300"
+                    data-timeseries-data="{{ time_series_data|tojson }}">
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Engagement Metrics -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Engagement Metrics</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="engagementChart" height="300"
+                    data-open-rate="{{ open_rate }}"
+                    data-click-rate="{{ click_rate }}"
+                    data-click-to-open-rate="{{ click_to_open_rate }}"
+                    data-bounce-rate="{{ bounce_rate }}">
+                </canvas>
+            </div>
+        </div>
+    </div>
+    
     <!-- Job Status Distribution -->
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Job Status Distribution</h5>
+                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Campaign Status Distribution</h5>
             </div>
             <div class="card-body">
-                <canvas id="jobStatusChart" height="250"
+                <canvas id="jobStatusChart" height="300"
                     data-scheduled="{{ status_counts.scheduled }}"
                     data-running="{{ status_counts.running }}"
                     data-completed="{{ status_counts.completed }}"
@@ -86,71 +171,123 @@
             </div>
         </div>
     </div>
-    
-    <!-- Recent Jobs -->
+</div>
+
+<div class="row mb-4">
+    <!-- Segment Performance -->
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Jobs</h5>
+                <h5 class="mb-0"><i class="fas fa-users me-2"></i>Segment Performance</h5>
             </div>
             <div class="card-body">
-                {% if jobs %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
+                {% if top_segments %}
+                <canvas id="segmentPerformanceChart" height="300"
+                    data-segment-data="{{ top_segments|tojson }}">
+                </canvas>
+                {% else %}
+                <p class="text-center text-muted my-5">No segment data available for the selected period.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent">
+                <h6 class="mb-0">Top Performing Segments</h6>
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
-                                <th>Job Name</th>
-                                <th>Scheduled Time</th>
-                                <th>Status</th>
-                                <th>Progress</th>
+                                <th>Segment</th>
+                                <th class="text-end">Open Rate</th>
+                                <th class="text-end">Click Rate</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for job in jobs[:5] %}
+                            {% for segment in top_segments[:3] %}
                             <tr>
-                                <td>{{ job.name }}</td>
-                                <td>{{ job.scheduled_time.strftime('%Y-%m-%d %H:%M') }}</td>
-                                <td>
-                                    <span class="badge badge-{{ job.status }}">
-                                        {{ job.status.capitalize() }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if job.total_emails > 0 %}
-                                    <div class="progress" style="height: 20px;">
-                                        {% set progress = (job.sent_emails / job.total_emails) * 100 %}
-                                        <div class="progress-bar {% if job.status == 'failed' %}bg-danger{% elif job.status == 'completed' %}bg-success{% else %}bg-primary{% endif %}" 
-                                             role="progressbar" 
-                                             style="width: {{ progress }}%;" 
-                                             aria-valuenow="{{ progress }}" 
-                                             aria-valuemin="0" 
-                                             aria-valuemax="100">
-                                            {{ job.sent_emails }}/{{ job.total_emails }}
-                                        </div>
-                                    </div>
-                                    {% else %}
-                                    <span class="text-muted">No emails</span>
-                                    {% endif %}
-                                </td>
+                                <td>{{ segment.segment_name }}</td>
+                                <td class="text-end">{{ "%.1f"|format(segment.open_rate) }}%</td>
+                                <td class="text-end">{{ "%.1f"|format(segment.click_rate) }}%</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Template Performance -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Template Performance</h5>
+            </div>
+            <div class="card-body">
+                {% if top_templates %}
+                <canvas id="templatePerformanceChart" height="300"
+                    data-template-data="{{ top_templates|tojson }}">
+                </canvas>
                 {% else %}
-                <p class="text-center text-muted">No jobs have been scheduled yet.</p>
+                <p class="text-center text-muted my-5">No template data available for the selected period.</p>
                 {% endif %}
+            </div>
+            <div class="card-footer bg-transparent">
+                <h6 class="mb-0">Top Performing Templates</h6>
+                <div class="table-responsive mt-2">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Template</th>
+                                <th class="text-end">Open Rate</th>
+                                <th class="text-end">Click Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for template in top_templates[:3] %}
+                            <tr>
+                                <td>{{ template.template_name }}</td>
+                                <td class="text-end">{{ "%.1f"|format(template.open_rate) }}%</td>
+                                <td class="text-end">{{ "%.1f"|format(template.click_rate) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <!-- Job Performance -->
+<!-- Email Statistics Basic Chart -->
+<div class="row mb-4">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Jobs Performance</h5>
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Email Campaign Statistics</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="emailStatsChart" height="100"
+                    data-total="{{ total_emails }}"
+                    data-sent="{{ sent_emails }}"
+                    data-failed="{{ failed_emails }}"
+                    data-opened="{{ opened_emails }}"
+                    data-clicked="{{ clicked_emails }}">
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Jobs & Detailed Performance -->
+<div class="row mb-4">
+    <!-- Recent Jobs -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Campaigns</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="showAllJobs" checked>
+                    <label class="form-check-label" for="showAllJobs">Show All Campaigns</label>
+                </div>
             </div>
             <div class="card-body">
                 {% if jobs %}
@@ -158,16 +295,16 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Job Name</th>
-                                <th>Scheduled Time</th>
+                                <th>Campaign Name</th>
+                                <th>Date</th>
                                 <th>Status</th>
                                 <th>Template</th>
                                 <th>Segment</th>
-                                <th>Total</th>
                                 <th>Sent</th>
-                                <th>Failed</th>
-                                <th>Opened</th>
-                                <th>Clicked</th>
+                                <th>Opens</th>
+                                <th>Clicks</th>
+                                <th>Open Rate</th>
+                                <th>CTR</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -182,19 +319,79 @@
                                 </td>
                                 <td>{{ job.template.name }}</td>
                                 <td>{{ job.segment.name }}</td>
-                                <td>{{ job.total_emails }}</td>
-                                <td>{{ job.sent_emails }}</td>
-                                <td>{{ job.failed_emails }}</td>
+                                <td>{{ job.sent_emails }} / {{ job.total_emails }}</td>
                                 <td>{{ job.opened_emails }}</td>
                                 <td>{{ job.clicked_emails }}</td>
+                                <td>
+                                    {% if job.sent_emails > 0 %}
+                                        {{ "%.1f"|format((job.opened_emails / job.sent_emails) * 100) }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if job.opened_emails > 0 %}
+                                        {{ "%.1f"|format((job.clicked_emails / job.opened_emails) * 100) }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
                 {% else %}
-                <p class="text-center text-muted">No jobs have been scheduled yet.</p>
+                <p class="text-center text-muted">No campaigns have been scheduled yet.</p>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Reports Section -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-file-export me-2"></i>Export Reports</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Campaign Performance</h5>
+                                <p class="card-text">Export detailed campaign performance metrics for the selected date range.</p>
+                                <button type="button" class="btn btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Export CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Segment Analytics</h5>
+                                <p class="card-text">Export segment performance metrics and comparison data.</p>
+                                <button type="button" class="btn btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Export CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Template Analytics</h5>
+                                <p class="card-text">Export template performance metrics and comparison data.</p>
+                                <button type="button" class="btn btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Export CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -202,5 +399,8 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Add moment.js for better date handling in charts -->
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

@@ -1,6 +1,6 @@
 import os
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from flask_login import login_user, logout_user, current_user, login_required
 from urllib.parse import urlparse
@@ -1111,34 +1111,207 @@ def cancel_job(id):
 @app.route('/monitoring')
 @login_required
 def monitoring():
-    # Get all jobs for the current user
-    jobs = ScheduledJob.query.filter_by(user_id=current_user.id).order_by(ScheduledJob.scheduled_time.desc()).all()
+    # Get date filter (defaults to last 30 days)
+    from_date_str = request.args.get('from_date')
+    to_date_str = request.args.get('to_date')
     
-    # Calculate statistics
+    # Default to last 30 days if not specified
+    if not from_date_str:
+        from_date = datetime.utcnow() - timedelta(days=30)
+    else:
+        try:
+            from_date = datetime.strptime(from_date_str, '%Y-%m-%d')
+        except ValueError:
+            from_date = datetime.utcnow() - timedelta(days=30)
+    
+    if not to_date_str:
+        to_date = datetime.utcnow()
+    else:
+        try:
+            to_date = datetime.strptime(to_date_str, '%Y-%m-%d')
+            # Set to end of day
+            to_date = to_date.replace(hour=23, minute=59, second=59)
+        except ValueError:
+            to_date = datetime.utcnow()
+    
+    # Get all jobs for the current user within date range
+    jobs = ScheduledJob.query.filter(
+        ScheduledJob.user_id == current_user.id,
+        ScheduledJob.scheduled_time >= from_date,
+        ScheduledJob.scheduled_time <= to_date
+    ).order_by(ScheduledJob.scheduled_time.desc()).all()
+    
+    # Get all jobs for time-series data (last 90 days)
+    time_series_start = datetime.utcnow() - timedelta(days=90)
+    all_recent_jobs = ScheduledJob.query.filter(
+        ScheduledJob.user_id == current_user.id,
+        ScheduledJob.scheduled_time >= time_series_start
+    ).order_by(ScheduledJob.scheduled_time.asc()).all()
+    
+    # Prepare time-series data (daily stats for the last 90 days)
+    time_series_data = {}
+    for i in range(90):
+        day = (datetime.utcnow() - timedelta(days=i)).strftime('%Y-%m-%d')
+        time_series_data[day] = {
+            'date': day,
+            'sent': 0,
+            'opened': 0,
+            'clicked': 0,
+            'failed': 0,
+            'total': 0
+        }
+    
+    # Fill time series data from jobs
+    for job in all_recent_jobs:
+        day = job.scheduled_time.strftime('%Y-%m-%d')
+        if day in time_series_data:
+            time_series_data[day]['sent'] += job.sent_emails
+            time_series_data[day]['opened'] += job.opened_emails
+            time_series_data[day]['clicked'] += job.clicked_emails
+            time_series_data[day]['failed'] += job.failed_emails
+            time_series_data[day]['total'] += job.total_emails
+    
+    # Convert to list and order by date
+    time_series_list = list(time_series_data.values())
+    time_series_list.sort(key=lambda x: x['date'])
+    
+    # Calculate statistics for filtered period
     total_emails = sum(job.total_emails for job in jobs)
     sent_emails = sum(job.sent_emails for job in jobs)
     failed_emails = sum(job.failed_emails for job in jobs)
     opened_emails = sum(job.opened_emails for job in jobs)
     clicked_emails = sum(job.clicked_emails for job in jobs)
     
+    # Calculate engagement metrics
+    open_rate = (opened_emails / sent_emails * 100) if sent_emails > 0 else 0
+    click_rate = (clicked_emails / opened_emails * 100) if opened_emails > 0 else 0
+    click_to_open_rate = (clicked_emails / opened_emails * 100) if opened_emails > 0 else 0
+    bounce_rate = (failed_emails / total_emails * 100) if total_emails > 0 else 0
+    
     # Group jobs by status for chart
     status_counts = {
-        'scheduled': ScheduledJob.query.filter_by(user_id=current_user.id, status='scheduled').count(),
-        'running': ScheduledJob.query.filter_by(user_id=current_user.id, status='running').count(),
-        'completed': ScheduledJob.query.filter_by(user_id=current_user.id, status='completed').count(),
-        'failed': ScheduledJob.query.filter_by(user_id=current_user.id, status='failed').count(),
-        'cancelled': ScheduledJob.query.filter_by(user_id=current_user.id, status='cancelled').count()
+        'scheduled': ScheduledJob.query.filter(
+            ScheduledJob.user_id == current_user.id, 
+            ScheduledJob.status == 'scheduled',
+            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.scheduled_time <= to_date
+        ).count(),
+        'running': ScheduledJob.query.filter(
+            ScheduledJob.user_id == current_user.id, 
+            ScheduledJob.status == 'running',
+            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.scheduled_time <= to_date
+        ).count(),
+        'completed': ScheduledJob.query.filter(
+            ScheduledJob.user_id == current_user.id, 
+            ScheduledJob.status == 'completed',
+            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.scheduled_time <= to_date
+        ).count(),
+        'failed': ScheduledJob.query.filter(
+            ScheduledJob.user_id == current_user.id, 
+            ScheduledJob.status == 'failed',
+            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.scheduled_time <= to_date
+        ).count(),
+        'cancelled': ScheduledJob.query.filter(
+            ScheduledJob.user_id == current_user.id, 
+            ScheduledJob.status == 'cancelled',
+            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.scheduled_time <= to_date
+        ).count()
     }
     
+    # Get segment performance data
+    segment_performance = {}
+    for job in jobs:
+        segment_id = job.segment_id
+        segment_name = job.segment.name
+        
+        if segment_id not in segment_performance:
+            segment_performance[segment_id] = {
+                'segment_name': segment_name,
+                'total': 0,
+                'sent': 0,
+                'opened': 0,
+                'clicked': 0,
+                'failed': 0
+            }
+        
+        segment_performance[segment_id]['total'] += job.total_emails
+        segment_performance[segment_id]['sent'] += job.sent_emails
+        segment_performance[segment_id]['opened'] += job.opened_emails
+        segment_performance[segment_id]['clicked'] += job.clicked_emails
+        segment_performance[segment_id]['failed'] += job.failed_emails
+    
+    # Calculate rates for each segment
+    for segment_id in segment_performance:
+        data = segment_performance[segment_id]
+        data['open_rate'] = (data['opened'] / data['sent'] * 100) if data['sent'] > 0 else 0
+        data['click_rate'] = (data['clicked'] / data['opened'] * 100) if data['opened'] > 0 else 0
+        data['bounce_rate'] = (data['failed'] / data['total'] * 100) if data['total'] > 0 else 0
+    
+    # Sort segments by open rate (descending)
+    top_segments = sorted(
+        segment_performance.values(), 
+        key=lambda x: x['open_rate'], 
+        reverse=True
+    )
+    
+    # Get template performance data
+    template_performance = {}
+    for job in jobs:
+        template_id = job.template_id
+        template_name = job.template.name
+        
+        if template_id not in template_performance:
+            template_performance[template_id] = {
+                'template_name': template_name,
+                'total': 0,
+                'sent': 0,
+                'opened': 0,
+                'clicked': 0,
+                'failed': 0
+            }
+        
+        template_performance[template_id]['total'] += job.total_emails
+        template_performance[template_id]['sent'] += job.sent_emails
+        template_performance[template_id]['opened'] += job.opened_emails
+        template_performance[template_id]['clicked'] += job.clicked_emails
+        template_performance[template_id]['failed'] += job.failed_emails
+    
+    # Calculate rates for each template
+    for template_id in template_performance:
+        data = template_performance[template_id]
+        data['open_rate'] = (data['opened'] / data['sent'] * 100) if data['sent'] > 0 else 0
+        data['click_rate'] = (data['clicked'] / data['opened'] * 100) if data['opened'] > 0 else 0
+        data['bounce_rate'] = (data['failed'] / data['total'] * 100) if data['total'] > 0 else 0
+    
+    # Sort templates by click rate (descending)
+    top_templates = sorted(
+        template_performance.values(), 
+        key=lambda x: x['click_rate'], 
+        reverse=True
+    )
+    
     return render_template('monitoring.html', 
-                          title='Monitoring Dashboard',
+                          title='Advanced Analytics Dashboard',
                           jobs=jobs,
                           total_emails=total_emails,
                           sent_emails=sent_emails,
                           failed_emails=failed_emails,
                           opened_emails=opened_emails,
                           clicked_emails=clicked_emails,
-                          status_counts=status_counts)
+                          open_rate=open_rate,
+                          click_rate=click_rate,
+                          click_to_open_rate=click_to_open_rate,
+                          bounce_rate=bounce_rate,
+                          status_counts=status_counts,
+                          top_segments=top_segments,
+                          top_templates=top_templates,
+                          time_series_data=time_series_list,
+                          from_date=from_date.strftime('%Y-%m-%d'),
+                          to_date=to_date.strftime('%Y-%m-%d'))
 
 # Additional routes for missing templates to avoid errors
 @app.route('/segment_contacts.html')
