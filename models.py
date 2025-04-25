@@ -164,6 +164,39 @@ class JobLog(db.Model):
     
     def __repr__(self):
         return f'<JobLog {self.id}>'
+        
+class EmailOpen(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey('scheduled_job.id'), nullable=False)
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'), nullable=False)
+    tracking_id = db.Column(db.String(64), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    ip_address = db.Column(db.String(45), nullable=True)
+    user_agent = db.Column(db.String(255), nullable=True)
+    
+    # Relationships
+    job = db.relationship('ScheduledJob', backref=db.backref('opens', lazy='dynamic'))
+    contact = db.relationship('Contact', backref=db.backref('opens', lazy='dynamic'))
+    
+    def __repr__(self):
+        return f'<EmailOpen {self.id}>'
+        
+class EmailClick(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey('scheduled_job.id'), nullable=False)
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id'), nullable=False)
+    tracking_id = db.Column(db.String(64), nullable=False)
+    url = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    ip_address = db.Column(db.String(45), nullable=True)
+    user_agent = db.Column(db.String(255), nullable=True)
+    
+    # Relationships
+    job = db.relationship('ScheduledJob', backref=db.backref('clicks', lazy='dynamic'))
+    contact = db.relationship('Contact', backref=db.backref('clicks', lazy='dynamic'))
+    
+    def __repr__(self):
+        return f'<EmailClick {self.id}>'
 
 class SMTPConfig(db.Model):
     id = db.Column(db.Integer, primary_key=True)

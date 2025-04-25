@@ -1,11 +1,13 @@
 import os
 import secrets
+import base64
+import logging
 from datetime import datetime, timedelta
-from flask import render_template, flash, redirect, url_for, request, jsonify, session
+from flask import render_template, flash, redirect, url_for, request, jsonify, session, Response
 from flask_login import login_user, logout_user, current_user, login_required
 from urllib.parse import urlparse
 from app import app, db, mail
-from models import User, EmailSegment, Contact, EmailTemplate, ScheduledJob, SMTPConfig, UserSession, UserRegistrationRequest, AdminEmailList, AdminEmailContact
+from models import User, EmailSegment, Contact, EmailTemplate, ScheduledJob, SMTPConfig, UserSession, UserRegistrationRequest, AdminEmailList, AdminEmailContact, EmailOpen, EmailClick
 from forms import (
     LoginForm, RegistrationForm, SegmentForm, ContactForm, ContactImportForm,
     TemplateForm, ScheduleJobForm, SMTPConfigForm, EmailEditorForm,
@@ -15,7 +17,6 @@ from forms import (
 )
 from email_service import update_mail_settings
 from flask_mail import Message
-import logging
 import json
 import csv
 import io
@@ -1156,6 +1157,77 @@ def cancel_job(id):
     db.session.commit()
     flash('Job cancelled successfully!', 'success')
     return redirect(url_for('jobs'))
+
+# Email Tracking Routes
+@app.route('/track/open/<int:job_id>/<int:contact_id>/<tracking_id>')
+def track_email_open(job_id, contact_id, tracking_id):
+    """Record an email open event"""
+    try:
+        # Check if job and contact exist
+        job = ScheduledJob.query.get_or_404(job_id)
+        contact = Contact.query.get_or_404(contact_id)
+        
+        # Record the open
+        email_open = EmailOpen(
+            job_id=job_id,
+            contact_id=contact_id,
+            tracking_id=tracking_id,
+            ip_address=request.remote_addr,
+            user_agent=request.user_agent.string if request.user_agent else None
+        )
+        
+        db.session.add(email_open)
+        
+        # Update job statistics
+        job.opened_emails = job.opened_emails + 1 if job.opened_emails else 1
+        
+        db.session.commit()
+        
+        # Return a transparent 1x1 pixel GIF
+        transparent_pixel = base64.b64decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')
+        return Response(transparent_pixel, mimetype='image/gif')
+        
+    except Exception as e:
+        logging.error(f"Error tracking email open: {str(e)}")
+        transparent_pixel = base64.b64decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')
+        return Response(transparent_pixel, mimetype='image/gif')
+
+@app.route('/track/click/<int:job_id>/<int:contact_id>/<tracking_id>')
+def track_email_click(job_id, contact_id, tracking_id):
+    """Record an email click event and redirect to the original URL"""
+    try:
+        # Get the original URL from query string
+        original_url = request.args.get('url')
+        if not original_url:
+            return redirect(url_for('index'))
+        
+        # Check if job and contact exist
+        job = ScheduledJob.query.get_or_404(job_id)
+        contact = Contact.query.get_or_404(contact_id)
+        
+        # Record the click
+        email_click = EmailClick(
+            job_id=job_id,
+            contact_id=contact_id,
+            tracking_id=tracking_id,
+            url=original_url,
+            ip_address=request.remote_addr,
+            user_agent=request.user_agent.string if request.user_agent else None
+        )
+        
+        db.session.add(email_click)
+        
+        # Update job statistics
+        job.clicked_emails = job.clicked_emails + 1 if job.clicked_emails else 1
+        
+        db.session.commit()
+        
+        # Redirect to the original URL
+        return redirect(original_url)
+        
+    except Exception as e:
+        logging.error(f"Error tracking email click: {str(e)}")
+        return redirect(url_for('index'))
 
 @app.route('/monitoring')
 @login_required
