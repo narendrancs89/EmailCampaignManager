@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DateTimeField, IntegerField, HiddenField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DateTimeField, IntegerField, HiddenField, FileField, MultipleFileField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
-from models import User
+from models import User, UserRegistrationRequest
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -18,13 +18,68 @@ class RegistrationForm(FlaskForm):
     
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
-        if user is not None:
+        request = UserRegistrationRequest.query.filter_by(username=username.data).first()
+        
+        if user is not None or request is not None:
             raise ValidationError('Please use a different username.')
             
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
-        if user is not None:
+        request = UserRegistrationRequest.query.filter_by(email=email.data).first()
+        
+        if user is not None or request is not None:
             raise ValidationError('Please use a different email address.')
+
+class EmailVerificationForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    token = StringField('Verification Token', validators=[DataRequired()])
+    submit = SubmitField('Verify Email')
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=8)])
+    password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')
+
+class AdminLoginForm(FlaskForm):
+    username = StringField('Admin Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Admin Sign In')
+
+class UserApprovalForm(FlaskForm):
+    approve = SubmitField('Approve')
+    reject = SubmitField('Reject')
+    rejection_reason = TextAreaField('Rejection Reason')
+
+class UserPermissionsForm(FlaskForm):
+    is_admin = BooleanField('Admin Access')
+    can_manage_segments = BooleanField('Can Manage Segments')
+    can_manage_templates = BooleanField('Can Manage Templates')
+    can_manage_jobs = BooleanField('Can Schedule Jobs')
+    can_manage_smtp = BooleanField('Can Manage SMTP Configs')
+    submit = SubmitField('Update Permissions')
+    
+class AdminEmailListForm(FlaskForm):
+    name = StringField('List Name', validators=[DataRequired(), Length(max=100)])
+    description = TextAreaField('Description', validators=[Optional(), Length(max=500)])
+    submit = SubmitField('Save Email List')
+
+class AdminEmailContactForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    name = StringField('Name', validators=[Optional(), Length(max=120)])
+    company = StringField('Company', validators=[Optional(), Length(max=120)])
+    phone = StringField('Phone', validators=[Optional(), Length(max=50)])
+    additional_data = TextAreaField('Additional Data (JSON)', validators=[Optional()])
+    submit = SubmitField('Add Contact')
+
+class AdminContactImportForm(FlaskForm):
+    contacts_file = FileField('CSV File', validators=[Optional()])
+    contacts = TextAreaField('Contacts (CSV format)', validators=[Optional()])
+    submit = SubmitField('Import Contacts')
 
 class SegmentForm(FlaskForm):
     name = StringField('Segment Name', validators=[DataRequired(), Length(max=100)])

@@ -14,4 +14,5 @@ dependencies = [
     "beautifulsoup4>=4.13.4",
     "flask-mail>=0.10.0",
     "apscheduler>=3.11.0",
+    "sendgrid>=6.11.0",
 ]

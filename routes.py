@@ -1,16 +1,117 @@
 import os
+import secrets
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from flask_login import login_user, logout_user, current_user, login_required
 from urllib.parse import urlparse
-from app import app, db
-from models import User, EmailSegment, Contact, EmailTemplate, ScheduledJob, SMTPConfig, UserSession
+from app import app, db, mail
+from models import User, EmailSegment, Contact, EmailTemplate, ScheduledJob, SMTPConfig, UserSession, UserRegistrationRequest, AdminEmailList, AdminEmailContact
 from forms import (
     LoginForm, RegistrationForm, SegmentForm, ContactForm, ContactImportForm,
-    TemplateForm, ScheduleJobForm, SMTPConfigForm, EmailEditorForm
+    TemplateForm, ScheduleJobForm, SMTPConfigForm, EmailEditorForm,
+    EmailVerificationForm, ResetPasswordRequestForm, ResetPasswordForm,
+    AdminLoginForm, UserApprovalForm, UserPermissionsForm,
+    AdminEmailListForm, AdminEmailContactForm, AdminContactImportForm
 )
 from email_service import update_mail_settings
+from flask_mail import Message
 import logging
+import json
+import csv
+import io
+
+# Email helper functions
+def send_verification_email(email, token):
+    """Send an email verification link to the user"""
+    try:
+        verify_url = url_for('verify_email', token=token, _external=True)
+        msg = Message('Verify Your Email Address',
+                     sender=app.config['MAIL_DEFAULT_SENDER'],
+                     recipients=[email])
+        msg.body = f'''To verify your email address, visit the following link:
+{verify_url}
+
+If you did not make this request, simply ignore this email.
+'''
+        msg.html = f'''
+<p>To verify your email address, click the button below:</p>
+<p><a href="{verify_url}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a></p>
+<p>Or visit this link: <a href="{verify_url}">{verify_url}</a></p>
+<p>If you did not make this request, simply ignore this email.</p>
+'''
+        mail.send(msg)
+        return True
+    except Exception as e:
+        logging.error(f"Error sending verification email: {str(e)}")
+        return False
+
+def send_password_reset_email(email, token):
+    """Send a password reset link to the user"""
+    try:
+        reset_url = url_for('reset_password', token=token, _external=True)
+        msg = Message('Password Reset Request',
+                     sender=app.config['MAIL_DEFAULT_SENDER'],
+                     recipients=[email])
+        msg.body = f'''To reset your password, visit the following link:
+{reset_url}
+
+If you did not make this request, simply ignore this email.
+'''
+        msg.html = f'''
+<p>To reset your password, click the button below:</p>
+<p><a href="{reset_url}" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
+<p>Or visit this link: <a href="{reset_url}">{reset_url}</a></p>
+<p>If you did not make this request, simply ignore this email.</p>
+<p>This link will expire in 1 hour.</p>
+'''
+        mail.send(msg)
+        return True
+    except Exception as e:
+        logging.error(f"Error sending password reset email: {str(e)}")
+        return False
+        
+def send_approval_notification(email, username):
+    """Send an approval notification to the user"""
+    try:
+        login_url = url_for('login', _external=True)
+        msg = Message('Account Approved',
+                     sender=app.config['MAIL_DEFAULT_SENDER'],
+                     recipients=[email])
+        msg.body = f'''Your account {username} has been approved!
+You can now log in at: {login_url}
+'''
+        msg.html = f'''
+<p>Congratulations! Your account <strong>{username}</strong> has been approved.</p>
+<p>You can now <a href="{login_url}">log in to your account</a>.</p>
+'''
+        mail.send(msg)
+        return True
+    except Exception as e:
+        logging.error(f"Error sending approval notification: {str(e)}")
+        return False
+        
+def send_rejection_notification(email, username, reason):
+    """Send a rejection notification to the user"""
+    try:
+        register_url = url_for('register', _external=True)
+        msg = Message('Account Registration Status',
+                     sender=app.config['MAIL_DEFAULT_SENDER'],
+                     recipients=[email])
+        msg.body = f'''Unfortunately, your account registration for {username} was not approved.
+Reason: {reason}
+
+You may register again at: {register_url}
+'''
+        msg.html = f'''
+<p>Unfortunately, your account registration for <strong>{username}</strong> was not approved.</p>
+<p><strong>Reason:</strong> {reason}</p>
+<p>You may <a href="{register_url}">register again</a> if you wish.</p>
+'''
+        mail.send(msg)
+        return True
+    except Exception as e:
+        logging.error(f"Error sending rejection notification: {str(e)}")
+        return False
 
 @app.route('/')
 @app.route('/index')
@@ -77,14 +178,85 @@ def register():
     
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
+        # Create a registration request instead of a user
+        reg_request = UserRegistrationRequest(
+            username=form.username.data, 
+            email=form.email.data
+        )
+        reg_request.set_password(form.password.data)
+        
+        # Generate verification token
+        verification_token = reg_request.verification_token = secrets.token_urlsafe(32)
+        
+        db.session.add(reg_request)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!', 'success')
+        
+        # Send verification email
+        send_verification_email(reg_request.email, verification_token)
+        
+        flash('Registration submitted! Please check your email to verify your account.', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/verify-email/<token>', methods=['GET'])
+def verify_email(token):
+    # Find registration request with this token
+    reg_request = UserRegistrationRequest.query.filter_by(verification_token=token).first()
+    
+    if not reg_request:
+        flash('Invalid or expired verification link.', 'danger')
+        return redirect(url_for('login'))
+    
+    # Mark email as verified
+    reg_request.email_verified = True
+    db.session.commit()
+    
+    flash('Email verified! Your registration is now pending admin approval.', 'success')
+    return redirect(url_for('login'))
+
+@app.route('/reset-password-request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            # Generate reset token
+            reset_token = user.generate_reset_token()
+            # Send reset email
+            send_password_reset_email(user.email, reset_token)
+            
+        # Always show success, don't confirm email existence
+        flash('If your email is registered, you will receive password reset instructions.', 'info')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password_request.html', title='Reset Password', form=form)
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    # Find user with matching token
+    user = User.query.filter_by(reset_password_token=token).first()
+    
+    if not user or not user.verify_reset_token(token):
+        flash('Invalid or expired reset link.', 'danger')
+        return redirect(url_for('login'))
+    
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        user.reset_password_token = None
+        user.reset_token_expires = None
+        db.session.commit()
+        flash('Your password has been reset successfully!', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password.html', title='Reset Your Password', form=form)
 
 @app.route('/dashboard')
 @login_required
