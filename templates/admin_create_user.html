@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Create New User - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-plus me-2"></i>Create New User</h1>
+    <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Users
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Create New User Account</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    <i class="fas fa-info-circle me-1"></i> Users created by admins are automatically verified and approved without requiring email verification.
+                </p>
+                
+                <form method="post" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <!-- Account Details -->
+                        <div class="col-md-6">
+                            <div class="config-form-section">
+                                <h6 class="mb-3">Account Details</h6>
+                                
+                                <div class="mb-3">
+                                    {{ form.username.label(class="form-label") }}
+                                    {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                                    {% if form.username.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.username.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form.email.label(class="form-label") }}
+                                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form.password.label(class="form-label") }}
+                                    {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+                                    {% if form.password.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.password.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Password must be at least 8 characters long.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form.password2.label(class="form-label") }}
+                                    {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else "")) }}
+                                    {% if form.password2.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.password2.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Permissions -->
+                        <div class="col-md-6">
+                            <div class="config-form-section">
+                                <h6 class="mb-3">Permissions</h6>
+                                
+                                <div class="mb-3 form-check">
+                                    {{ form.is_admin(class="form-check-input") }}
+                                    {{ form.is_admin.label(class="form-check-label") }}
+                                    <div class="form-text">Grants full administrative access.</div>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    {{ form.can_manage_segments(class="form-check-input") }}
+                                    {{ form.can_manage_segments.label(class="form-check-label") }}
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    {{ form.can_manage_templates(class="form-check-input") }}
+                                    {{ form.can_manage_templates.label(class="form-check-label") }}
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    {{ form.can_manage_jobs(class="form-check-input") }}
+                                    {{ form.can_manage_jobs.label(class="form-check-label") }}
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    {{ form.can_manage_smtp(class="form-check-input") }}
+                                    {{ form.can_manage_smtp.label(class="form-check-label") }}
+                                    <div class="form-text">Allows configuration of SMTP servers.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <div>
+                            <button type="button" class="btn btn-outline-success me-2 generate-password">
+                                <i class="fas fa-key me-1"></i> Generate Password
+                            </button>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password generator
+        const generateBtn = document.querySelector('.generate-password');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', function() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+';
+                let password = '';
+                
+                // Generate a random password of length 12
+                for (let i = 0; i < 12; i++) {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                
+                // Set the generated password
+                document.getElementById('password').value = password;
+                document.getElementById('password2').value = password;
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(password).then(function() {
+                    alert('Password generated and copied to clipboard: ' + password);
+                }).catch(function() {
+                    alert('Generated password: ' + password);
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

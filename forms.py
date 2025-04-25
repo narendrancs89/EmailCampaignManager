@@ -63,6 +63,40 @@ class UserPermissionsForm(FlaskForm):
     can_manage_smtp = BooleanField('Can Manage SMTP Configs')
     submit = SubmitField('Update Permissions')
     
+class AdminUserCreationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
+    password2 = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    is_admin = BooleanField('Admin Access')
+    can_manage_segments = BooleanField('Can Manage Segments', default=True)
+    can_manage_templates = BooleanField('Can Manage Templates', default=True)
+    can_manage_jobs = BooleanField('Can Schedule Jobs', default=True)
+    can_manage_smtp = BooleanField('Can Manage SMTP Configs')
+    submit = SubmitField('Create User')
+    
+    def validate_username(self, username):
+        # Check if username already exists in User table
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None:
+            raise ValidationError('Username already in use. Please choose a different one.')
+        
+        # Also check pending registration requests
+        req = UserRegistrationRequest.query.filter_by(username=username.data).first()
+        if req is not None:
+            raise ValidationError('Username already in a pending registration request.')
+            
+    def validate_email(self, email):
+        # Check if email already exists in User table
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('Email already registered. Please use a different one.')
+        
+        # Also check pending registration requests
+        req = UserRegistrationRequest.query.filter_by(email=email.data).first()
+        if req is not None:
+            raise ValidationError('Email already in a pending registration request.')
+    
 class AdminEmailListForm(FlaskForm):
     name = StringField('List Name', validators=[DataRequired(), Length(max=100)])
     description = TextAreaField('Description', validators=[Optional(), Length(max=500)])

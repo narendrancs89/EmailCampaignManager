@@ -10,7 +10,7 @@ from forms import (
     LoginForm, RegistrationForm, SegmentForm, ContactForm, ContactImportForm,
     TemplateForm, ScheduleJobForm, SMTPConfigForm, EmailEditorForm,
     EmailVerificationForm, ResetPasswordRequestForm, ResetPasswordForm,
-    AdminLoginForm, UserApprovalForm, UserPermissionsForm,
+    AdminLoginForm, UserApprovalForm, UserPermissionsForm, AdminUserCreationForm,
     AdminEmailListForm, AdminEmailContactForm, AdminContactImportForm
 )
 from email_service import update_mail_settings
@@ -704,6 +704,51 @@ def admin_activate_user(id):
     
     flash(f'User {user.username} has been activated.', 'success')
     return redirect(url_for('admin_users'))
+
+@app.route('/admin/users/create', methods=['GET', 'POST'])
+@login_required
+def admin_create_user():
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    form = AdminUserCreationForm()
+    
+    if form.validate_on_submit():
+        # Create the user directly (skip email verification)
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            is_admin=form.is_admin.data,
+            is_active=True,  # User is active by default
+            email_verified=True,  # Admin-created users are pre-verified
+            is_approved=True,  # Admin-created users are pre-approved
+            created_at=datetime.utcnow()
+        )
+        
+        # Set password
+        user.set_password(form.password.data)
+        
+        # Set individual permissions
+        permissions = {
+            'can_manage_segments': form.can_manage_segments.data,
+            'can_manage_templates': form.can_manage_templates.data,
+            'can_manage_jobs': form.can_manage_jobs.data,
+            'can_manage_smtp': form.can_manage_smtp.data
+        }
+        user.set_permissions(permissions)
+        
+        # Save to database
+        db.session.add(user)
+        db.session.commit()
+        
+        flash(f'User {user.username} has been created successfully!', 'success')
+        return redirect(url_for('admin_users'))
+    
+    return render_template('admin_create_user.html',
+                          title='Create New User',
+                          form=form)
 
 # Email Segments Routes
 @app.route('/segments')
