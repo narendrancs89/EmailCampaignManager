@@ -1257,6 +1257,8 @@ def new_job():
             template_id=form.template_id.data,
             segment_id=form.segment_id.data,
             smtp_config_id=form.smtp_config_id.data,
+            from_email=form.from_email.data if form.from_email.data else None,
+            from_name=form.from_name.data if form.from_name.data else None,
             total_emails=segment.emails.count()
         )
         db.session.add(job)

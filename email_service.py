@@ -66,11 +66,17 @@ def send_campaign_emails(app, job):
                 if template.has_click_tracking:
                     personalized_content = add_click_tracking(personalized_content, job.id, contact.id)
                 
+                # Set the sender (use custom sender if available, otherwise use SMTP config)
+                sender_email = job.from_email if job.from_email else smtp_config.from_email
+                sender_name = job.from_name if job.from_name else smtp_config.from_name
+                sender = f"{sender_name} <{sender_email}>" if sender_name else sender_email
+                
                 # Create the email message
                 msg = Message(
                     subject=template.subject,
                     recipients=[contact.email],
-                    html=personalized_content
+                    html=personalized_content,
+                    sender=sender
                 )
                 
                 # Send the email

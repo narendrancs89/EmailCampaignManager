@@ -121,4 +121,77 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get references to key elements
+    const smtpSelector = document.getElementById('smtp_config_selector');
+    const fromEmailField = document.getElementById('from_email');
+    const fromNameField = document.getElementById('from_name');
+    
+    // Store SMTP configs data
+    const smtpConfigs = {
+    {% for config in smtp_configs %}
+        {{ config.id }}: {
+            fromEmail: "{{ config.from_email }}",
+            fromName: "{{ config.from_name or '' }}"
+        },
+    {% endfor %}
+    };
+    
+    // Handle SMTP config changes
+    smtpSelector.addEventListener('change', function() {
+        const selectedConfigId = this.value;
+        if (selectedConfigId && smtpConfigs[selectedConfigId]) {
+            // Clear the custom fields to use SMTP defaults
+            fromEmailField.placeholder = smtpConfigs[selectedConfigId].fromEmail || '';
+            fromNameField.placeholder = smtpConfigs[selectedConfigId].fromName || '';
+        }
+    });
+    
+    // Trigger once on page load
+    if (smtpSelector.value) {
+        const event = new Event('change');
+        smtpSelector.dispatchEvent(event);
+    }
+    
+    // Add a "Use SMTP Defaults" button
+    const senderSection = document.querySelector('.card-body .row');
+    const resetButton = document.createElement('div');
+    resetButton.classList.add('col-12', 'mt-3');
+    resetButton.innerHTML = `
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="useSMTPDefaults">
+            <i class="fas fa-undo me-1"></i> Use SMTP Default Sender
+        </button>
+    `;
+    senderSection.appendChild(resetButton);
+    
+    // Handle reset button click
+    document.getElementById('useSMTPDefaults').addEventListener('click', function() {
+        fromEmailField.value = '';
+        fromNameField.value = '';
+        
+        // Show toast notification
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        toast.style.color = 'white';
+        toast.style.padding = '10px 20px';
+        toast.style.borderRadius = '4px';
+        toast.style.zIndex = '9999';
+        toast.textContent = 'Using SMTP default sender settings';
+        document.body.appendChild(toast);
+        
+        // Remove toast after 3 seconds
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 500);
+        }, 2500);
+    });
+});
+</script>
 {% endblock %}
