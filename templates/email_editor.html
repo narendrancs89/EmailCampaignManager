@@ -56,19 +56,77 @@
     </div>
     
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Email Content</h5>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="insert-template-btn">
+                    <i class="fas fa-th-large me-1"></i> Insert Template
+                </button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-info" id="preview-toggle-btn">
+                        <i class="fas fa-desktop me-1"></i> Preview Mode
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Preview Options</h6></li>
+                        <li><a class="dropdown-item" href="#" id="show-tracking-btn">Show Tracking Elements</a></li>
+                        <li><a class="dropdown-item" href="#" id="test-personalization-btn">Test Personalization</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="send-test-email-btn">Send Test Email</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="editor-container">
+                <!-- Editor Column -->
                 <div class="editor-column">
+                    <div class="editor-toolbar">
+                        <h6 class="editor-toolbar-title">
+                            <i class="fas fa-edit me-1"></i> HTML Editor
+                        </h6>
+                        <div class="template-actions">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="toggle-html-btn">
+                                <i class="fas fa-code me-1"></i> HTML
+                            </button>
+                        </div>
+                    </div>
                     <textarea id="email-editor" name="email-editor"></textarea>
                     {{ form.content }}
+                    
+                    <div class="personalization-variables">
+                        <strong>Insert Variables:</strong>
+                        <code data-variable="{{name}}">{{name}}</code>
+                        <code data-variable="{{email}}">{{email}}</code>
+                        <code data-variable="{{company}}">{{company}}</code>
+                        <code data-variable="{{unsubscribe}}">{{unsubscribe}}</code>
+                    </div>
                 </div>
+                
+                <!-- Preview Column -->
                 <div class="preview-column">
                     <div class="preview-header">
-                        <h6 class="mb-0">Preview</h6>
-                        <div id="preview-subject" class="fw-bold">{{ form.subject.data or 'Email Subject' }}</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Preview</h6>
+                            <div class="preview-device-toolbar">
+                                <button type="button" class="btn btn-sm btn-outline-secondary active" data-device="desktop">
+                                    <i class="fas fa-desktop"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-device="tablet">
+                                    <i class="fas fa-tablet-alt"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-device="mobile">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="text-muted small">From: {{ current_user.email }}</span>
+                            <span class="text-muted small">Subject:</span>
+                            <div id="preview-subject" class="fw-bold">{{ form.subject.data or 'Email Subject' }}</div>
+                        </div>
                     </div>
                     <div id="preview-pane" class="preview-content"></div>
                 </div>
@@ -76,9 +134,98 @@
         </div>
         <div class="card-footer">
             <div class="mb-0">
-                <strong>Personalization Variables:</strong>
-                <code>{{name}}</code> - Recipient's name,
-                <code>{{email}}</code> - Recipient's email
+                <strong>Template Features:</strong>
+                <span class="badge bg-success me-2"><i class="fas fa-link me-1"></i> Click Tracking</span>
+                <span class="badge bg-info me-2"><i class="fas fa-eye me-1"></i> Open Tracking</span>
+                <span class="badge bg-warning me-2"><i class="fas fa-ban me-1"></i> Unsubscribe Options</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Template Blocks Modal -->
+    <div class="modal fade" id="template-blocks-modal" tabindex="-1" aria-labelledby="template-blocks-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="template-blocks-modal-label">Insert Template Block</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="template-block" data-template="header">
+                                <h5>Header with Logo</h5>
+                                <p class="text-muted">Simple header with company logo and text</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="template-block" data-template="hero">
+                                <h5>Hero Banner</h5>
+                                <p class="text-muted">Large image with headline and call-to-action</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="template-block" data-template="text">
+                                <h5>Text Block</h5>
+                                <p class="text-muted">Simple formatted text with headline</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="template-block" data-template="button">
+                                <h5>Call-to-Action Button</h5>
+                                <p class="text-muted">Centered button with custom text</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="template-block" data-template="columns">
+                                <h5>Two Columns</h5>
+                                <p class="text-muted">Content split into two equal columns</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="template-block" data-template="footer">
+                                <h5>Footer with Unsubscribe</h5>
+                                <p class="text-muted">Standard footer with unsubscribe link</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Test Personalization Modal -->
+    <div class="modal fade" id="test-personalization-modal" tabindex="-1" aria-labelledby="test-personalization-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="test-personalization-modal-label">Test Personalization</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">Enter sample values to preview personalization:</p>
+                    <div class="mb-3">
+                        <label for="test-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="test-name" value="John Doe">
+                    </div>
+                    <div class="mb-3">
+                        <label for="test-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="test-email" value="john@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="test-company" class="form-label">Company</label>
+                        <input type="text" class="form-control" id="test-company" value="ACME Inc.">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="apply-personalization-btn">Apply Preview</button>
+                </div>
             </div>
         </div>
     </div>
