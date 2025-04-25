@@ -47,6 +47,11 @@ def login():
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
+            
+        # Check if user account is active
+        if not user.is_active:
+            flash('Your account is not active. Please contact an administrator.', 'warning')
+            return redirect(url_for('login'))
         
         # Update last login time
         user.last_login = datetime.utcnow()
