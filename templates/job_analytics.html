@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Campaign Analytics - {{ job.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-chart-line me-2"></i>Campaign Analytics</h1>
+    <div>
+        <a href="{{ url_for('jobs') }}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i> Back to Jobs
+        </a>
+        <a href="{{ url_for('monitoring') }}" class="btn btn-outline-info">
+            <i class="fas fa-tachometer-alt me-1"></i> Analytics Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ job.name }}</h5>
+                <div class="small">Scheduled: {{ job.scheduled_time.strftime('%Y-%m-%d %H:%M') }}</div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Campaign Details</h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th width="150">Status</th>
+                                    <td>
+                                        <span class="badge badge-{{ job.status }}">
+                                            {{ job.status.capitalize() }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Template</th>
+                                    <td>{{ job.template.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Segment</th>
+                                    <td>{{ job.segment.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>SMTP Config</th>
+                                    <td>{{ job.smtp_config.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Created At</th>
+                                    <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Last Updated</th>
+                                    <td>{{ job.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Email Metrics</h6>
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th width="150">Total Emails</th>
+                                    <td>{{ job.total_emails }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Sent</th>
+                                    <td>{{ job.sent_emails }} ({{ "%.1f"|format((job.sent_emails / job.total_emails) * 100) if job.total_emails > 0 else 0 }}%)</td>
+                                </tr>
+                                <tr>
+                                    <th>Failed</th>
+                                    <td>{{ job.failed_emails }} ({{ "%.1f"|format((job.failed_emails / job.total_emails) * 100) if job.total_emails > 0 else 0 }}%)</td>
+                                </tr>
+                                <tr>
+                                    <th>Opened</th>
+                                    <td>{{ job.opened_emails }} ({{ "%.1f"|format((job.opened_emails / job.sent_emails) * 100) if job.sent_emails > 0 else 0 }}%)</td>
+                                </tr>
+                                <tr>
+                                    <th>Clicked</th>
+                                    <td>{{ job.clicked_emails }} ({{ "%.1f"|format((job.clicked_emails / job.opened_emails) * 100) if job.opened_emails > 0 else 0 }}%)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign Progress -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Delivery Progress</h5>
+                {% if job.status in ['scheduled', 'running'] %}
+                <form method="post" action="{{ url_for('cancel_job', id=job.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-warning cancel-confirm">
+                        <i class="fas fa-ban me-1"></i> Cancel Job
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3" style="height: 25px;">
+                    {% set progress = (job.sent_emails / job.total_emails) * 100 if job.total_emails > 0 else 0 %}
+                    <div class="progress-bar {% if job.status == 'failed' %}bg-danger{% elif job.status == 'completed' %}bg-success{% else %}bg-primary{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ progress }}%;" 
+                         aria-valuenow="{{ progress }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ job.sent_emails }}/{{ job.total_emails }} ({{ "%.1f"|format(progress) }}%)
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h2 class="display-4 text-primary">{{ job.total_emails }}</h2>
+                                <div class="text-muted">Total Emails</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h2 class="display-4 text-success">{{ job.sent_emails }}</h2>
+                                <div class="text-muted">Successfully Sent</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h2 class="display-4 text-warning">{{ job.opened_emails }}</h2>
+                                <div class="text-muted">Emails Opened</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h2 class="display-4 text-info">{{ job.clicked_emails }}</h2>
+                                <div class="text-muted">Links Clicked</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Engagement Metrics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Engagement Metrics</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="engagementDonutChart" 
+                    data-sent="{{ job.sent_emails }}"
+                    data-opened="{{ job.opened_emails }}"
+                    data-clicked="{{ job.clicked_emails }}"
+                    data-unopened="{{ job.sent_emails - job.opened_emails if job.sent_emails > job.opened_emails else 0 }}">
+                </canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Key Performance Indicators</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">Open Rate</h6>
+                                <h2 class="display-5 text-warning">
+                                    {{ "%.1f"|format((job.opened_emails / job.sent_emails) * 100) if job.sent_emails > 0 else 0 }}%
+                                </h2>
+                                <div class="small text-muted">Industry avg: 15-25%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">Click Rate</h6>
+                                <h2 class="display-5 text-info">
+                                    {{ "%.1f"|format((job.clicked_emails / job.sent_emails) * 100) if job.sent_emails > 0 else 0 }}%
+                                </h2>
+                                <div class="small text-muted">Industry avg: 2.5-5%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">Click-to-Open Rate</h6>
+                                <h2 class="display-5 text-primary">
+                                    {{ "%.1f"|format((job.clicked_emails / job.opened_emails) * 100) if job.opened_emails > 0 else 0 }}%
+                                </h2>
+                                <div class="small text-muted">Industry avg: 20-30%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted mb-2">Delivery Rate</h6>
+                                <h2 class="display-5 text-success">
+                                    {{ "%.1f"|format((job.sent_emails / job.total_emails) * 100) if job.total_emails > 0 else 0 }}%
+                                </h2>
+                                <div class="small text-muted">Industry avg: 95-98%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Opens and Clicks -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Recent Opens</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if opens %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Contact</th>
+                                <th>Time</th>
+                                <th>Device</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for open in opens %}
+                            <tr>
+                                <td>{{ open.contact.name or open.contact.email }}</td>
+                                <td>{{ open.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ get_device_from_user_agent(open.user_agent) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-eye-slash fa-3x text-muted"></i>
+                    </div>
+                    <p class="text-muted mb-0">No opens recorded for this campaign yet</p>
+                </div>
+                {% endif %}
+            </div>
+            {% if opens and opens|length >= 5 %}
+            <div class="card-footer text-center">
+                <a href="#" class="btn btn-sm btn-link text-decoration-none">View All Opens</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-mouse-pointer me-2"></i>Recent Clicks</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if clicks %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Contact</th>
+                                <th>URL</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for click in clicks %}
+                            <tr>
+                                <td>{{ click.contact.name or click.contact.email }}</td>
+                                <td>
+                                    <a href="{{ click.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width: 200px;">
+                                        {{ get_display_url(click.url) }}
+                                    </a>
+                                </td>
+                                <td>{{ click.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-mouse-pointer fa-3x text-muted"></i>
+                    </div>
+                    <p class="text-muted mb-0">No clicks recorded for this campaign yet</p>
+                </div>
+                {% endif %}
+            </div>
+            {% if clicks and clicks|length >= 5 %}
+            <div class="card-footer text-center">
+                <a href="#" class="btn btn-sm btn-link text-decoration-none">View All Clicks</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Job Logs -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Job Execution Logs</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if logs %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Level</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr class="{% if log.level == 'error' %}table-danger{% elif log.level == 'warning' %}table-warning{% endif %}">
+                                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <span class="badge {% if log.level == 'error' %}badge-danger{% elif log.level == 'warning' %}badge-warning{% else %}badge-info{% endif %}">
+                                        {{ log.level.upper() }}
+                                    </span>
+                                </td>
+                                <td>{{ log.message }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-clipboard-list fa-3x text-muted"></i>
+                    </div>
+                    <p class="text-muted mb-0">No logs available for this job</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add confirmation for cancel actions
+    const cancelButtons = document.querySelectorAll('.cancel-confirm');
+    if (cancelButtons.length > 0) {
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to cancel this job? This action cannot be undone.')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    }
+    
+    // Engagement donut chart
+    const engagementDonutChart = document.getElementById('engagementDonutChart');
+    if (engagementDonutChart) {
+        const ctx = engagementDonutChart.getContext('2d');
+        
+        // Get data from data attributes
+        const sent = parseInt(engagementDonutChart.dataset.sent || 0);
+        const opened = parseInt(engagementDonutChart.dataset.opened || 0);
+        const clicked = parseInt(engagementDonutChart.dataset.clicked || 0);
+        const unopened = parseInt(engagementDonutChart.dataset.unopened || 0);
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Opened & Clicked', 'Opened (No Click)', 'Not Opened'],
+                datasets: [{
+                    data: [clicked, opened - clicked, unopened],
+                    backgroundColor: [
+                        'rgba(52, 152, 219, 0.8)',  // Blue for clicked
+                        'rgba(243, 156, 18, 0.8)',  // Orange for opened
+                        'rgba(149, 165, 166, 0.8)'  // Gray for not opened
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = sent;
+                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

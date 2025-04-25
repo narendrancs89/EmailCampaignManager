@@ -1107,6 +1107,68 @@ def test_smtp_config(id):
 def jobs():
     jobs = ScheduledJob.query.filter_by(user_id=current_user.id).order_by(ScheduledJob.scheduled_time.desc()).all()
     return render_template('scheduled_jobs.html', title='Scheduled Jobs', jobs=jobs)
+    
+@app.route('/jobs/<int:id>/analytics')
+@login_required
+def job_analytics(id):
+    """Show detailed analytics for a specific job"""
+    job = ScheduledJob.query.get_or_404(id)
+    
+    # Check if the job belongs to the current user
+    if job.user_id != current_user.id:
+        flash('You do not have permission to view this job.', 'danger')
+        return redirect(url_for('jobs'))
+        
+    # Get recent opens (limit to 5)
+    opens = EmailOpen.query.filter_by(job_id=id).order_by(EmailOpen.timestamp.desc()).limit(5).all()
+    
+    # Get recent clicks (limit to 5)
+    clicks = EmailClick.query.filter_by(job_id=id).order_by(EmailClick.timestamp.desc()).limit(5).all()
+    
+    # Get job logs
+    logs = JobLog.query.filter_by(job_id=id).order_by(JobLog.timestamp.desc()).all()
+    
+    # Helper functions for template
+    def get_device_from_user_agent(user_agent):
+        """Extract device info from user agent string"""
+        if not user_agent:
+            return "Unknown"
+            
+        ua_lower = user_agent.lower()
+        if 'iphone' in ua_lower or 'ipad' in ua_lower:
+            return "iOS"
+        elif 'android' in ua_lower:
+            return "Android"
+        elif 'windows' in ua_lower:
+            return "Windows"
+        elif 'macintosh' in ua_lower or 'mac os' in ua_lower:
+            return "Mac"
+        elif 'linux' in ua_lower:
+            return "Linux"
+        else:
+            return "Other"
+    
+    def get_display_url(url):
+        """Format URL for display"""
+        if not url:
+            return ""
+            
+        # Remove http/https prefix
+        display_url = url.replace('https://', '').replace('http://', '')
+        
+        # Truncate if too long
+        if len(display_url) > 30:
+            return display_url[:27] + '...'
+        return display_url
+    
+    return render_template('job_analytics.html', 
+                          title=f'Campaign Analytics - {job.name}',
+                          job=job,
+                          opens=opens,
+                          clicks=clicks,
+                          logs=logs,
+                          get_device_from_user_agent=get_device_from_user_agent,
+                          get_display_url=get_display_url)
 
 @app.route('/jobs/new', methods=['GET', 'POST'])
 @login_required
