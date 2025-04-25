@@ -319,6 +319,87 @@
     color: white;
 }
 
+.badge-paused {
+    background-color: var(--bs-warning);
+    color: white;
+}
+
+/* Template management styles */
+.template-details {
+    margin-bottom: 1rem;
+}
+
+.template-tracking {
+    margin-top: 0.5rem;
+}
+
+.template-tracking .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.5rem;
+    margin-right: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.template-version {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--bs-primary);
+    color: white;
+    border-radius: 1rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+/* Job monitoring styles */
+.monitoring-card {
+    transition: box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.monitoring-card:hover {
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+.monitoring-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
+.monitoring-body {
+    padding: 1.5rem;
+}
+
+.monitoring-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.125);
+    background-color: rgba(0,0,0,0.03);
+}
+
+.stat-box {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    background-color: var(--bs-light);
+    margin-bottom: 1rem;
+}
+
+.stat-box .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.stat-box .stat-label {
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+}
+
 /* Stats counter */
 .stats-counter {
     font-size: 2rem;

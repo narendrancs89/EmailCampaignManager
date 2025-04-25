@@ -23,12 +23,41 @@
             </div>
             <div class="card-body">
                 <h6 class="card-subtitle mb-2 text-muted">Subject: {{ template.subject }}</h6>
-                <div class="text-muted small mb-3">Created: {{ template.created_at.strftime('%Y-%m-%d') }}</div>
+                <div class="template-details mb-3">
+                    <div class="text-muted small">Created: {{ template.created_at.strftime('%Y-%m-%d') }}</div>
+                    <div class="text-muted small">Updated: {{ template.updated_at.strftime('%Y-%m-%d') }}</div>
+                    <div class="text-muted small">Version: {{ template.version }}</div>
+                    {% if template.versions.count() > 0 %}
+                    <div class="text-muted small">Versions: {{ template.versions.count() }}</div>
+                    {% endif %}
+                    <div class="template-tracking mt-2">
+                        {% if template.has_open_tracking %}
+                        <span class="badge bg-info me-1" data-bs-toggle="tooltip" title="Open tracking enabled">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                        {% endif %}
+                        {% if template.has_click_tracking %}
+                        <span class="badge bg-success me-1" data-bs-toggle="tooltip" title="Click tracking enabled">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </span>
+                        {% endif %}
+                        {% if template.has_optout %}
+                        <span class="badge bg-warning me-1" data-bs-toggle="tooltip" title="Unsubscribe enabled">
+                            <i class="fas fa-user-slash"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
                 
                 <div class="item-actions">
-                    <a href="{{ url_for('edit_template', id=template.id) }}" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-edit me-1"></i> Edit
-                    </a>
+                    <div class="btn-group mb-2">
+                        <a href="{{ url_for('edit_template', id=template.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i> Edit
+                        </a>
+                        <a href="{{ url_for('save_template_as', id=template.id) }}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-copy me-1"></i> Save As
+                        </a>
+                    </div>
                     <form method="post" action="{{ url_for('delete_template', id=template.id) }}" class="d-inline">
                         <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm">
                             <i class="fas fa-trash-alt me-1"></i> Delete
