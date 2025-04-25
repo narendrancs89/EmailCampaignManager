@@ -151,6 +151,10 @@ class ScheduleJobForm(FlaskForm):
     segment_id = SelectField('Email Segment', coerce=int, validators=[DataRequired()])
     smtp_config_id = SelectField('SMTP Configuration', coerce=int, validators=[DataRequired()])
     scheduled_time = DateTimeField('Schedule Time', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
+    from_email = StringField('From Email', validators=[Optional(), Email()],
+                           description='Override the default sender email in SMTP configuration')
+    from_name = StringField('From Name', validators=[Optional(), Length(max=120)],
+                         description='Override the default sender name in SMTP configuration')
     submit = SubmitField('Schedule Job')
 
 class SMTPConfigForm(FlaskForm):

@@ -174,6 +174,9 @@ class ScheduledJob(db.Model):
     template_id = db.Column(db.Integer, db.ForeignKey('email_template.id'), nullable=False)
     segment_id = db.Column(db.Integer, db.ForeignKey('email_segment.id'), nullable=False)
     smtp_config_id = db.Column(db.Integer, db.ForeignKey('smtp_config.id'), nullable=False)
+    # Custom sender fields that override SMTP configuration
+    from_email = db.Column(db.String(120), nullable=True)
+    from_name = db.Column(db.String(120), nullable=True)
     
     # Job execution control fields
     started_at = db.Column(db.DateTime, nullable=True)
