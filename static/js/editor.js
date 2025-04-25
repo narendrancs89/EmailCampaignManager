@@ -1,5 +1,34 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize TinyMCE
+    // Check if TinyMCE is defined
+    if (typeof tinymce === 'undefined') {
+        console.error('TinyMCE is not loaded. Please check the script inclusion.');
+        
+        // Add a fallback basic editor
+        const editorTextarea = document.getElementById('email-editor');
+        if (editorTextarea) {
+            editorTextarea.style.display = 'block';
+            editorTextarea.style.width = '100%';
+            editorTextarea.style.minHeight = '400px';
+            editorTextarea.addEventListener('input', function() {
+                document.getElementById('content').value = this.value;
+                document.getElementById('preview-pane').innerHTML = this.value;
+            });
+            
+            // Load any existing content
+            const contentField = document.getElementById('content');
+            if (contentField && contentField.value) {
+                editorTextarea.value = contentField.value;
+                document.getElementById('preview-pane').innerHTML = contentField.value;
+            }
+        }
+        
+        // Initialize tracking options UI
+        initTrackingOptions();
+        
+        return;
+    }
+    
+    // Initialize TinyMCE if it's available
     tinymce.init({
         selector: '#email-editor',
         height: 500,
@@ -116,19 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Template type change handler
-    const templateTypeSelect = document.getElementById('type');
-    if (templateTypeSelect) {
-        templateTypeSelect.addEventListener('change', function() {
-            const selectedType = this.value;
-            updateTrackingElements(selectedType);
-        });
-        
-        // Set initial tracking elements based on selected type
-        if (templateTypeSelect.value) {
-            updateTrackingElements(templateTypeSelect.value);
-        }
-    }
+    // Initialize tracking options
+    initTrackingOptions();
 
     // Initialize responsive preview
     initDevicePreview();
@@ -167,13 +185,27 @@ document.addEventListener('DOMContentLoaded', function() {
     function updatePreview(options = {}) {
         const previewPane = document.getElementById('preview-pane');
         const previewSubject = document.getElementById('preview-subject');
-        const editor = tinymce.get('email-editor');
-        const templateType = document.getElementById('type').value;
         
-        if (previewPane && editor) {
-            // Get the content
-            let content = editor.getContent();
-            
+        // Get content from TinyMCE if available, otherwise from textarea
+        let editor = null;
+        let content = '';
+        
+        if (typeof tinymce !== 'undefined') {
+            editor = tinymce.get('email-editor');
+            if (editor) {
+                content = editor.getContent();
+            }
+        }
+        
+        // Fallback to textarea if TinyMCE is not available or initialized
+        if (!editor) {
+            const editorTextarea = document.getElementById('email-editor');
+            if (editorTextarea) {
+                content = editorTextarea.value;
+            }
+        }
+        
+        if (previewPane) {
             // Apply personalization if requested
             if (options.personalize) {
                 content = applyPersonalization(content, options.personalizationData);
@@ -181,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add tracking markers if requested
             if (options.showTracking) {
-                content = addTrackingMarkers(content, templateType);
+                content = addTrackingMarkers(content);
             }
             
             // Set the content
@@ -199,46 +231,102 @@ document.addEventListener('DOMContentLoaded', function() {
     function addTrackingMarkers(content, templateType) {
         let modifiedContent = content;
         
+        // Get tracking options checkboxes
+        const hasClickTracking = document.getElementById('has_click_tracking') && 
+                               document.getElementById('has_click_tracking').checked;
+        const hasOpenTracking = document.getElementById('has_open_tracking') && 
+                              document.getElementById('has_open_tracking').checked;
+        const hasOptout = document.getElementById('has_optout') && 
+                        document.getElementById('has_optout').checked;
+        
+        // Get tracking URLs
+        const clickTrackingUrl = document.getElementById('click_tracking_url') ? 
+                               document.getElementById('click_tracking_url').value : null;
+        const openTrackingUrl = document.getElementById('open_tracking_url') ? 
+                              document.getElementById('open_tracking_url').value : null;
+        const trackingImageUrl = document.getElementById('tracking_image_url') ? 
+                               document.getElementById('tracking_image_url').value : null;
+        const optoutUrl = document.getElementById('optout_url') ? 
+                        document.getElementById('optout_url').value : null;
+        
         // Add open tracking indicator
-        if (templateType === 'open') {
+        if (hasOpenTracking) {
+            const pixelUrl = trackingImageUrl || 'https://via.placeholder.com/1x1.png';
+            const trackingUrl = openTrackingUrl || '#';
+            
             modifiedContent += `
                 <div class="tracking-marker open-tracker">
                     <i class="fas fa-eye me-1"></i> <strong>Open Tracking:</strong> 
-                    Pixel will be added here to track when recipients open this email.
+                    <span>A tracking pixel will be inserted in your email to track opens.</span>
+                    ${openTrackingUrl ? 
+                        `<div><strong>Tracking URL:</strong> <code>${trackingUrl}?recipient={{email}}</code></div>` : 
+                        '<div><strong>Warning:</strong> Please provide a tracking URL.</div>'}
+                    ${trackingImageUrl ? 
+                        `<div><strong>Pixel Image:</strong> <code>${pixelUrl}</code></div>` : 
+                        ''}
                 </div>
             `;
         }
         
         // Add click tracking indicators to all links
-        if (templateType === 'click') {
+        if (hasClickTracking) {
             // Create a temporary element to parse the HTML
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = modifiedContent;
             
             // Find all links and add tracking indicators
             const links = tempDiv.querySelectorAll('a');
-            links.forEach(link => {
-                // Create tracking indicator
-                const trackingMarker = document.createElement('div');
-                trackingMarker.className = 'tracking-marker click-tracker';
-                trackingMarker.innerHTML = `
-                    <i class="fas fa-link me-1"></i> <strong>Click Tracking:</strong> 
-                    This link will be modified to track when recipients click it.
+            if (links.length > 0) {
+                links.forEach(link => {
+                    const originalUrl = link.getAttribute('href');
+                    if (originalUrl && !originalUrl.startsWith('#') && !originalUrl.startsWith('mailto:')) {
+                        // Create tracking indicator
+                        const trackingMarker = document.createElement('div');
+                        trackingMarker.className = 'tracking-marker click-tracker';
+                        const trackingUrl = clickTrackingUrl || '#';
+                        
+                        trackingMarker.innerHTML = `
+                            <i class="fas fa-link me-1"></i> <strong>Click Tracking:</strong>
+                            <span>This link will be modified for click tracking.</span>
+                            ${clickTrackingUrl ? 
+                                `<div><strong>From:</strong> <code>${originalUrl}</code></div>
+                                <div><strong>To:</strong> <code>${trackingUrl}?url=${encodeURIComponent(originalUrl)}&recipient={{email}}</code></div>` :
+                                '<div><strong>Warning:</strong> Please provide a tracking URL.</div>'}
+                        `;
+                        
+                        // Insert the tracking marker after the link
+                        link.parentNode.insertBefore(trackingMarker, link.nextSibling);
+                    }
+                });
+            } else {
+                // No links found, add a general message
+                modifiedContent += `
+                    <div class="tracking-marker click-tracker">
+                        <i class="fas fa-link me-1"></i> <strong>Click Tracking:</strong>
+                        <span>No links found in your email. Add links to enable click tracking.</span>
+                        ${clickTrackingUrl ? 
+                            `<div><strong>Tracking URL:</strong> <code>${clickTrackingUrl}?url=[original-url]&recipient={{email}}</code></div>` : 
+                            '<div><strong>Warning:</strong> Please provide a tracking URL.</div>'}
+                    </div>
                 `;
-                
-                // Insert the tracking marker after the link
-                link.parentNode.insertBefore(trackingMarker, link.nextSibling);
-            });
+            }
             
-            modifiedContent = tempDiv.innerHTML;
+            if (links.length > 0) {
+                modifiedContent = tempDiv.innerHTML;
+            }
         }
         
         // Add opt-out section for opt-out templates
-        if (templateType === 'optout') {
+        if (hasOptout) {
+            const unsubscribeUrl = optoutUrl || '#';
+            
             modifiedContent += `
                 <div class="tracking-marker optout-section">
-                    <i class="fas fa-ban me-1"></i> <strong>Unsubscribe Footer:</strong> 
-                    An unsubscribe link will be added here to allow recipients to opt out.
+                    <i class="fas fa-ban me-1"></i> <strong>Unsubscribe Footer:</strong>
+                    <span>An unsubscribe link will be added to the bottom of your email.</span>
+                    ${optoutUrl ? 
+                        `<div><strong>Unsubscribe URL:</strong> <code>${unsubscribeUrl}?email={{email}}</code></div>` : 
+                        '<div><strong>Warning:</strong> Please provide an unsubscribe URL.</div>'}
                 </div>
             `;
         }
@@ -271,13 +359,172 @@ document.addEventListener('DOMContentLoaded', function() {
         return personalizedContent;
     }
     
-    // Function to update tracking elements based on template type
-    function updateTrackingElements(templateType) {
-        // This function could add or modify content based on the template type
-        console.log('Selected template type:', templateType);
+    // Initialize tracking options functionality
+    function initTrackingOptions() {
+        // Get checkbox elements
+        const clickTrackingCheckbox = document.getElementById('has_click_tracking');
+        const openTrackingCheckbox = document.getElementById('has_open_tracking');
+        const optoutCheckbox = document.getElementById('has_optout');
         
-        // For demonstration, update preview with tracking elements
-        updatePreview({ showTracking: true });
+        // Get URL input elements
+        const clickTrackingUrl = document.getElementById('click_tracking_url');
+        const openTrackingUrl = document.getElementById('open_tracking_url');
+        const trackingImageUrl = document.getElementById('tracking_image_url');
+        const optoutUrl = document.getElementById('optout_url');
+        
+        // Get options containers
+        const clickTrackingOptions = document.getElementById('click_tracking_options');
+        const openTrackingOptions = document.getElementById('open_tracking_options');
+        const optoutOptions = document.getElementById('optout_options');
+        
+        // Type hidden field for backward compatibility
+        const typeField = document.getElementById('type');
+        
+        // Function to update the type field value based on checkboxes
+        function updateTypeField() {
+            const types = [];
+            
+            if (clickTrackingCheckbox && clickTrackingCheckbox.checked) {
+                types.push('click');
+            }
+            
+            if (openTrackingCheckbox && openTrackingCheckbox.checked) {
+                types.push('open');
+            }
+            
+            if (optoutCheckbox && optoutCheckbox.checked) {
+                types.push('optout');
+            }
+            
+            // Set the type field value as comma-separated string
+            if (typeField) {
+                typeField.value = types.join(',');
+            }
+            
+            // Update preview to show tracking markers
+            updatePreview({ showTracking: true });
+        }
+        
+        // Function to handle tracking checkbox changes
+        function handleTrackingCheckboxChange(checkbox, optionsContainer) {
+            if (checkbox && optionsContainer) {
+                // Initialize visibility based on initial checkbox state
+                optionsContainer.style.display = checkbox.checked ? 'block' : 'none';
+                
+                // Handle checkbox changes
+                checkbox.addEventListener('change', function() {
+                    optionsContainer.style.display = this.checked ? 'block' : 'none';
+                    updateTypeField();
+                });
+            }
+        }
+        
+        // Initialize visibility for each tracking option
+        handleTrackingCheckboxChange(clickTrackingCheckbox, clickTrackingOptions);
+        handleTrackingCheckboxChange(openTrackingCheckbox, openTrackingOptions);
+        handleTrackingCheckboxChange(optoutCheckbox, optoutOptions);
+        
+        // Add URL change handlers to update preview
+        const urlInputs = [clickTrackingUrl, openTrackingUrl, trackingImageUrl, optoutUrl];
+        urlInputs.forEach(input => {
+            if (input) {
+                input.addEventListener('input', function() {
+                    // Update preview when URL changes
+                    updatePreview({ showTracking: true });
+                });
+            }
+        });
+        
+        // Set initial type field value
+        updateTypeField();
+        
+        // Add URL generation functions
+        function generateTrackingContent() {
+            const editor = typeof tinymce !== 'undefined' ? tinymce.get('email-editor') : null;
+            const contentField = document.getElementById('content');
+            let content = editor ? editor.getContent() : (contentField ? contentField.value : '');
+            
+            // Process content based on enabled tracking options
+            if (clickTrackingCheckbox && clickTrackingCheckbox.checked && clickTrackingUrl && clickTrackingUrl.value) {
+                content = addClickTracking(content, clickTrackingUrl.value);
+            }
+            
+            if (openTrackingCheckbox && openTrackingCheckbox.checked) {
+                if (openTrackingUrl && openTrackingUrl.value) {
+                    const pixelUrl = trackingImageUrl && trackingImageUrl.value ? 
+                        trackingImageUrl.value : 
+                        'https://via.placeholder.com/1x1.png?text=.';
+                    
+                    content = addOpenTracking(content, openTrackingUrl.value, pixelUrl);
+                }
+            }
+            
+            if (optoutCheckbox && optoutCheckbox.checked && optoutUrl && optoutUrl.value) {
+                content = addOptoutFooter(content, optoutUrl.value);
+            }
+            
+            return content;
+        }
+        
+        // Add click tracking to all links
+        function addClickTracking(content, trackingUrl) {
+            // Parse the HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            
+            // Find all links
+            const links = tempDiv.querySelectorAll('a');
+            links.forEach(link => {
+                const originalUrl = link.getAttribute('href');
+                if (originalUrl && !originalUrl.startsWith('#') && !originalUrl.startsWith('mailto:')) {
+                    // Create tracking URL
+                    const trackingRedirectUrl = `${trackingUrl}?url=${encodeURIComponent(originalUrl)}&recipient={{email}}`;
+                    link.setAttribute('href', trackingRedirectUrl);
+                    link.setAttribute('data-original-url', originalUrl);
+                    link.setAttribute('title', `${link.getAttribute('title') || ''} (Tracked)`.trim());
+                }
+            });
+            
+            return tempDiv.innerHTML;
+        }
+        
+        // Add open tracking pixel
+        function addOpenTracking(content, trackingUrl, pixelUrl) {
+            // Create tracking pixel
+            const trackingPixel = `<img src="${pixelUrl}" alt="" width="1" height="1" style="display:none" data-tracking-url="${trackingUrl}?recipient={{email}}" />`;
+            
+            // Add the pixel at the end of the email
+            return `${content}\n${trackingPixel}`;
+        }
+        
+        // Add unsubscribe footer
+        function addOptoutFooter(content, optoutUrl) {
+            // Create unsubscribe footer
+            const optoutFooter = `
+                <div style="border-top: 1px solid #ddd; margin-top: 20px; padding-top: 10px; color: #666; font-size: 12px; text-align: center;">
+                    <p>If you no longer wish to receive emails from us, you can <a href="${optoutUrl}?email={{email}}" style="color: #666;">unsubscribe here</a>.</p>
+                </div>
+            `;
+            
+            // Add the footer at the end of the email
+            return `${content}\n${optoutFooter}`;
+        }
+        
+        // Handle form submission to process the content with tracking elements
+        const emailForm = document.getElementById('email-form');
+        if (emailForm) {
+            emailForm.addEventListener('submit', function(e) {
+                const contentField = document.getElementById('content');
+                
+                // Generate final content with tracking elements
+                const finalContent = generateTrackingContent();
+                
+                // Set the final content to the hidden field
+                if (contentField) {
+                    contentField.value = finalContent;
+                }
+            });
+        }
     }
     
     // Initialize device preview functionality

@@ -136,6 +136,32 @@
     margin-top: 20px;
 }
 
+/* Tracking Option Cards */
+.tracking-option-card {
+    height: 100%;
+    transition: all 0.2s ease;
+    border: 1px solid var(--bs-border-color);
+}
+
+.tracking-option-card:hover {
+    border-color: var(--bs-primary);
+}
+
+.tracking-options {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.form-check-input:checked ~ .tracking-options {
+    opacity: 1;
+}
+
+.form-switch .form-check-input {
+    cursor: pointer;
+    height: 1.5rem;
+    width: 3rem;
+}
+
 /* Template blocks */
 .template-block {
     padding: 10px;
