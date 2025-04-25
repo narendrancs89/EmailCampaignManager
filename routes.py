@@ -150,6 +150,254 @@ def reset_password_request():
     
     return render_template('reset_password_request.html', title='Reset Password', form=form)
 
+# Admin Email List Management Routes
+@app.route('/admin/email-lists')
+@login_required
+def admin_email_lists():
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get all email lists
+    email_lists = AdminEmailList.query.all()
+    
+    return render_template('admin_email_lists.html',
+                           title='Admin Email Lists',
+                           email_lists=email_lists)
+
+@app.route('/admin/email-lists/new', methods=['GET', 'POST'])
+@login_required
+def admin_new_email_list():
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    form = AdminEmailListForm()
+    
+    if form.validate_on_submit():
+        email_list = AdminEmailList(
+            name=form.name.data,
+            description=form.description.data,
+            created_by=current_user.id
+        )
+        
+        db.session.add(email_list)
+        db.session.commit()
+        
+        flash('Email list created successfully!', 'success')
+        return redirect(url_for('admin_email_lists'))
+    
+    return render_template('admin_email_list_form.html',
+                           title='Create Email List',
+                           form=form)
+
+@app.route('/admin/email-lists/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_email_list(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get email list
+    email_list = AdminEmailList.query.get_or_404(id)
+    
+    form = AdminEmailListForm()
+    
+    if form.validate_on_submit():
+        email_list.name = form.name.data
+        email_list.description = form.description.data
+        
+        db.session.commit()
+        
+        flash('Email list updated successfully!', 'success')
+        return redirect(url_for('admin_email_lists'))
+    
+    # Pre-populate form with email list data
+    if request.method == 'GET':
+        form.name.data = email_list.name
+        form.description.data = email_list.description
+    
+    return render_template('admin_email_list_form.html',
+                           title='Edit Email List',
+                           form=form,
+                           email_list=email_list)
+
+@app.route('/admin/email-lists/<int:id>/delete', methods=['POST'])
+@login_required
+def admin_delete_email_list(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get email list
+    email_list = AdminEmailList.query.get_or_404(id)
+    
+    # Delete email list (cascade will delete contacts)
+    db.session.delete(email_list)
+    db.session.commit()
+    
+    flash('Email list deleted successfully!', 'success')
+    return redirect(url_for('admin_email_lists'))
+
+@app.route('/admin/email-lists/<int:id>/contacts', methods=['GET', 'POST'])
+@login_required
+def admin_email_list_contacts(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get email list
+    email_list = AdminEmailList.query.get_or_404(id)
+    
+    # Forms for adding contacts
+    contact_form = AdminEmailContactForm()
+    import_form = AdminContactImportForm()
+    
+    if contact_form.validate_on_submit() and 'add_contact' in request.form:
+        # Add single contact
+        contact = AdminEmailContact(
+            email=contact_form.email.data,
+            name=contact_form.name.data,
+            company=contact_form.company.data,
+            phone=contact_form.phone.data,
+            additional_data=contact_form.additional_data.data,
+            list_id=email_list.id
+        )
+        
+        db.session.add(contact)
+        db.session.commit()
+        
+        flash('Contact added successfully!', 'success')
+        return redirect(url_for('admin_email_list_contacts', id=email_list.id))
+    
+    if import_form.validate_on_submit() and 'import_contacts' in request.form:
+        # Handle CSV file upload
+        if import_form.contacts_file.data:
+            try:
+                # Read CSV file
+                file_content = import_form.contacts_file.data.read().decode('utf-8')
+                csv_data = csv.reader(io.StringIO(file_content))
+                
+                # Skip header row
+                next(csv_data, None)
+                
+                # Process rows
+                added_count = 0
+                for row in csv_data:
+                    if len(row) >= 2:  # At least email and name
+                        email = row[0].strip()
+                        name = row[1].strip() if len(row) > 1 else None
+                        company = row[2].strip() if len(row) > 2 else None
+                        phone = row[3].strip() if len(row) > 3 else None
+                        
+                        # Basic email validation
+                        if '@' not in email:
+                            continue
+                        
+                        # Create contact
+                        contact = AdminEmailContact(
+                            email=email,
+                            name=name,
+                            company=company,
+                            phone=phone,
+                            list_id=email_list.id
+                        )
+                        
+                        db.session.add(contact)
+                        added_count += 1
+                
+                if added_count > 0:
+                    db.session.commit()
+                    flash(f'{added_count} contacts imported successfully!', 'success')
+                else:
+                    flash('No valid contacts found for import.', 'warning')
+            
+            except Exception as e:
+                flash(f'Error importing contacts: {str(e)}', 'danger')
+        
+        # Handle CSV text input
+        elif import_form.contacts.data:
+            try:
+                # Process CSV text
+                csv_data = csv.reader(io.StringIO(import_form.contacts.data))
+                
+                # Process rows
+                added_count = 0
+                for row in csv_data:
+                    if len(row) >= 1:  # At least email
+                        email = row[0].strip()
+                        name = row[1].strip() if len(row) > 1 else None
+                        company = row[2].strip() if len(row) > 2 else None
+                        phone = row[3].strip() if len(row) > 3 else None
+                        
+                        # Basic email validation
+                        if '@' not in email:
+                            continue
+                        
+                        # Create contact
+                        contact = AdminEmailContact(
+                            email=email,
+                            name=name,
+                            company=company,
+                            phone=phone,
+                            list_id=email_list.id
+                        )
+                        
+                        db.session.add(contact)
+                        added_count += 1
+                
+                if added_count > 0:
+                    db.session.commit()
+                    flash(f'{added_count} contacts imported successfully!', 'success')
+                else:
+                    flash('No valid contacts found for import.', 'warning')
+            
+            except Exception as e:
+                flash(f'Error importing contacts: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin_email_list_contacts', id=email_list.id))
+    
+    # Get contacts for this list
+    contacts = AdminEmailContact.query.filter_by(list_id=email_list.id).all()
+    
+    return render_template('admin_email_list_contacts.html',
+                           title=f'Admin Email List - {email_list.name}',
+                           email_list=email_list,
+                           contacts=contacts,
+                           contact_form=contact_form,
+                           import_form=import_form)
+
+@app.route('/admin/email-lists/<int:list_id>/contacts/<int:contact_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_contact(list_id, contact_id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get email list
+    email_list = AdminEmailList.query.get_or_404(list_id)
+    
+    # Get contact
+    contact = AdminEmailContact.query.get_or_404(contact_id)
+    
+    # Check if contact belongs to this list
+    if contact.list_id != email_list.id:
+        flash('This contact does not belong to the specified list.', 'danger')
+        return redirect(url_for('admin_email_list_contacts', id=email_list.id))
+    
+    # Delete contact
+    db.session.delete(contact)
+    db.session.commit()
+    
+    flash('Contact deleted successfully!', 'success')
+    return redirect(url_for('admin_email_list_contacts', id=email_list.id))
+
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     if current_user.is_authenticated:
@@ -224,11 +472,21 @@ def admin_dashboard():
     # Get admin email lists
     email_lists = AdminEmailList.query.all()
     
+    # Get counts for admin dashboard widgets
+    pending_count = len(pending_requests)
+    users_count = User.query.count()
+    lists_count = len(email_lists)
+    contacts_count = AdminEmailContact.query.count()
+    
     return render_template('admin_dashboard.html', 
                            title='Admin Dashboard',
                            pending_requests=pending_requests,
                            recent_users=recent_users,
-                           email_lists=email_lists)
+                           email_lists=email_lists,
+                           pending_count=pending_count,
+                           users_count=users_count,
+                           lists_count=lists_count,
+                           contacts_count=contacts_count)
 
 @app.route('/admin/user-requests')
 @login_required
@@ -339,6 +597,113 @@ def reject_user_request(id):
                            title='Reject User Request',
                            form=form,
                            request=reg_request)
+
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get all active users
+    users = User.query.filter_by(is_active=True).order_by(User.username).all()
+    
+    return render_template('admin_users.html',
+                           title='User Management',
+                           users=users)
+
+@app.route('/admin/users/<int:id>/permissions', methods=['GET', 'POST'])
+@login_required
+def admin_user_permissions(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get user
+    user = User.query.get_or_404(id)
+    
+    # Cannot edit own permissions
+    if user.id == current_user.id:
+        flash('You cannot edit your own permissions.', 'warning')
+        return redirect(url_for('admin_users'))
+    
+    form = UserPermissionsForm()
+    
+    if form.validate_on_submit():
+        # Update admin status
+        user.is_admin = form.is_admin.data
+        
+        # Update individual permissions
+        permissions = {
+            'can_manage_segments': form.can_manage_segments.data,
+            'can_manage_templates': form.can_manage_templates.data,
+            'can_manage_jobs': form.can_manage_jobs.data,
+            'can_manage_smtp': form.can_manage_smtp.data
+        }
+        user.set_permissions(permissions)
+        
+        # Save changes
+        db.session.commit()
+        
+        flash(f'Permissions for {user.username} updated successfully!', 'success')
+        return redirect(url_for('admin_users'))
+    
+    # Pre-populate form with user permissions
+    if request.method == 'GET':
+        form.is_admin.data = user.is_admin
+        permissions = user.get_permissions()
+        form.can_manage_segments.data = permissions.get('can_manage_segments', False)
+        form.can_manage_templates.data = permissions.get('can_manage_templates', False)
+        form.can_manage_jobs.data = permissions.get('can_manage_jobs', False)
+        form.can_manage_smtp.data = permissions.get('can_manage_smtp', False)
+    
+    return render_template('admin_user_permissions.html',
+                           title=f'Edit User Permissions - {user.username}',
+                           form=form,
+                           user=user)
+
+@app.route('/admin/users/<int:id>/deactivate', methods=['POST'])
+@login_required
+def admin_deactivate_user(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get user
+    user = User.query.get_or_404(id)
+    
+    # Cannot deactivate self
+    if user.id == current_user.id:
+        flash('You cannot deactivate your own account.', 'warning')
+        return redirect(url_for('admin_users'))
+    
+    # Deactivate user
+    user.is_active = False
+    db.session.commit()
+    
+    flash(f'User {user.username} has been deactivated.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/users/<int:id>/activate', methods=['POST'])
+@login_required
+def admin_activate_user(id):
+    # Check if user is admin
+    if not current_user.is_admin:
+        flash('You do not have permission to perform this action.', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    # Get user
+    user = User.query.get_or_404(id)
+    
+    # Activate user
+    user.is_active = True
+    db.session.commit()
+    
+    flash(f'User {user.username} has been activated.', 'success')
+    return redirect(url_for('admin_users'))
 
 # Email Segments Routes
 @app.route('/segments')
