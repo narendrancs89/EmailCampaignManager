@@ -59,11 +59,11 @@ def send_campaign_emails(app, job):
                 # Personalize the email content
                 personalized_content = personalize_email(template.content, contact)
                 
-                # Add tracking if needed
-                if template.type == 'open':
+                # Add tracking if enabled for this template
+                if template.has_open_tracking:
                     personalized_content = add_open_tracking(personalized_content, job.id, contact.id)
                 
-                if template.type == 'click':
+                if template.has_click_tracking:
                     personalized_content = add_click_tracking(personalized_content, job.id, contact.id)
                 
                 # Create the email message
@@ -131,7 +131,11 @@ def add_open_tracking(content, job_id, contact_id):
     """Add open tracking pixel to email"""
     # Create a tracking pixel
     tracking_id = str(uuid.uuid4())
-    tracking_pixel = f'<img src="https://yourdomain.com/track/open/{job_id}/{contact_id}/{tracking_id}" width="1" height="1" alt="" />'
+    
+    # Use request.url_root to get the domain of the current application
+    # For now, we'll use a relative URL which will resolve correctly 
+    # regardless of the domain the application is deployed on
+    tracking_pixel = f'<img src="/track/open/{job_id}/{contact_id}/{tracking_id}" width="1" height="1" alt="" style="display:none" />'
     
     # Add tracking pixel before closing body tag
     if '</body>' in content:
@@ -147,8 +151,14 @@ def add_click_tracking(content, job_id, contact_id):
     for link in soup.find_all('a'):
         if link.has_attr('href'):
             original_url = link['href']
+            # Skip empty or javascript links
+            if not original_url or original_url.startswith('javascript:') or original_url.startswith('#'):
+                continue
+                
             tracking_id = str(uuid.uuid4())
-            tracked_url = f"https://yourdomain.com/track/click/{job_id}/{contact_id}/{tracking_id}?url={original_url}"
+            
+            # Use a relative URL which will resolve correctly regardless of the domain
+            tracked_url = f"/track/click/{job_id}/{contact_id}/{tracking_id}?url={original_url}"
             link['href'] = tracked_url
     
     return str(soup)

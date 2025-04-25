@@ -39,17 +39,59 @@
     </div>
     
     <div class="row mb-3">
-        <div class="col">
+        <div class="col-md-6">
             <div class="mb-3">
                 <label for="type" class="form-label">{{ form.type.label }}</label>
                 {{ form.type(class="form-control") }}
                 {% for error in form.type.errors %}
                 <div class="text-danger">{{ error }}</div>
                 {% endfor %}
-                <div class="form-text">
-                    <strong>Click Tracking:</strong> Tracks when recipients click links in your email<br>
-                    <strong>Open Tracking:</strong> Tracks when recipients open your email<br>
-                    <strong>Opt-out Template:</strong> Includes unsubscribe options in your email
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Tracking Options</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mb-2">
+                                {{ form.has_open_tracking(class="form-check-input") }}
+                                <label class="form-check-label" for="has_open_tracking">
+                                    {{ form.has_open_tracking.label }}
+                                </label>
+                                <div class="form-text">
+                                    Tracks when recipients open your email
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mb-2">
+                                {{ form.has_click_tracking(class="form-check-input") }}
+                                <label class="form-check-label" for="has_click_tracking">
+                                    {{ form.has_click_tracking.label }}
+                                </label>
+                                <div class="form-text">
+                                    Tracks when recipients click links in your email
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mb-2">
+                                {{ form.has_optout(class="form-check-input") }}
+                                <label class="form-check-label" for="has_optout">
+                                    {{ form.has_optout.label }}
+                                </label>
+                                <div class="form-text">
+                                    Includes unsubscribe options in your email
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -134,10 +134,15 @@ class TemplateForm(FlaskForm):
     subject = StringField('Email Subject', validators=[DataRequired(), Length(max=200)])
     content = TextAreaField('Email Content', validators=[DataRequired()])
     type = SelectField('Template Type', choices=[
-        ('click', 'Click Tracking'), 
-        ('open', 'Open Tracking'), 
-        ('optout', 'Opt-out Template')
+        ('standard', 'Standard Email'),
+        ('newsletter', 'Newsletter'),
+        ('promotional', 'Promotional'),
+        ('transactional', 'Transactional')
     ], validators=[DataRequired()])
+    has_click_tracking = BooleanField('Enable Click Tracking')
+    has_open_tracking = BooleanField('Enable Open Tracking')
+    has_optout = BooleanField('Include Unsubscribe Link')
+    template_id = HiddenField('Template ID')
     submit = SubmitField('Save Template')
 
 class ScheduleJobForm(FlaskForm):

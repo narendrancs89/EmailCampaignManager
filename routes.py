@@ -926,6 +926,9 @@ def new_template():
             subject=form.subject.data,
             content=form.content.data,
             type=form.type.data,
+            has_click_tracking=form.has_click_tracking.data,
+            has_open_tracking=form.has_open_tracking.data,
+            has_optout=form.has_optout.data,
             user_id=current_user.id
         )
         db.session.add(template)
@@ -952,6 +955,9 @@ def edit_template(id):
         template.subject = form.subject.data
         template.content = form.content.data
         template.type = form.type.data
+        template.has_click_tracking = form.has_click_tracking.data
+        template.has_open_tracking = form.has_open_tracking.data
+        template.has_optout = form.has_optout.data
         db.session.commit()
         flash('Template updated successfully!', 'success')
         return redirect(url_for('templates'))
@@ -963,6 +969,9 @@ def edit_template(id):
         form.subject.data = template.subject
         form.content.data = template.content
         form.type.data = template.type
+        form.has_click_tracking.data = template.has_click_tracking
+        form.has_open_tracking.data = template.has_open_tracking
+        form.has_optout.data = template.has_optout
     
     return render_template('email_editor.html', title='Edit Template', form=form, template=template)
 
