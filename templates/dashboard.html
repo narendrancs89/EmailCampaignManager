@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="mb-3"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h1>
+        <p class="lead">Welcome back, {{ current_user.username }}!</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h5 class="card-title">Email Segments</h5>
+                <p class="card-text stats-counter">{{ segment_count }}</p>
+                <a href="{{ url_for('segments') }}" class="btn btn-sm btn-outline-primary">Manage Segments</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h5 class="card-title">Email Templates</h5>
+                <p class="card-text stats-counter">{{ template_count }}</p>
+                <a href="{{ url_for('templates') }}" class="btn btn-sm btn-outline-primary">Manage Templates</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h5 class="card-title">Scheduled Jobs</h5>
+                <p class="card-text stats-counter">{{ job_count }}</p>
+                <a href="{{ url_for('jobs') }}" class="btn btn-sm btn-outline-primary">Manage Jobs</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card dashboard-card text-center h-100">
+            <div class="card-body">
+                <div class="card-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h5 class="card-title">SMTP Configs</h5>
+                <p class="card-text stats-counter">{{ smtp_count }}</p>
+                <a href="{{ url_for('smtp_config') }}" class="btn btn-sm btn-outline-primary">Manage SMTP</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('new_segment') }}" class="btn btn-primary btn-lg w-100 mb-2">
+                            <i class="fas fa-plus-circle me-2"></i>New Segment
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('new_template') }}" class="btn btn-success btn-lg w-100 mb-2">
+                            <i class="fas fa-plus-circle me-2"></i>New Template
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('new_job') }}" class="btn btn-info btn-lg w-100 mb-2">
+                            <i class="fas fa-plus-circle me-2"></i>Schedule Job
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('new_smtp_config') }}" class="btn btn-secondary btn-lg w-100 mb-2">
+                            <i class="fas fa-plus-circle me-2"></i>Add SMTP
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Jobs -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Jobs</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_jobs %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Job Name</th>
+                                <th>Scheduled Time</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Template</th>
+                                <th>Segment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in recent_jobs %}
+                            <tr>
+                                <td>{{ job.name }}</td>
+                                <td>{{ job.scheduled_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ job.status }}">
+                                        {{ job.status.capitalize() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if job.total_emails > 0 %}
+                                    <div class="progress" style="height: 20px;">
+                                        {% set progress = (job.sent_emails / job.total_emails) * 100 %}
+                                        <div class="progress-bar {% if job.status == 'failed' %}bg-danger{% elif job.status == 'completed' %}bg-success{% else %}bg-primary{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ progress }}%;" 
+                                             aria-valuenow="{{ progress }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ job.sent_emails }}/{{ job.total_emails }}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">No emails</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ job.template.name }}</td>
+                                <td>{{ job.segment.name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">No jobs scheduled yet. <a href="{{ url_for('new_job') }}">Schedule your first job</a>.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('jobs') }}" class="btn btn-outline-primary">View All Jobs</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

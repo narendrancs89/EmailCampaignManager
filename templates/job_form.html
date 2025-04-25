@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Email Job - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>Schedule Email Job</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">{{ form.name.label }}</label>
+                        {{ form.name(class="form-control") }}
+                        {% for error in form.name.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="template_id" class="form-label">{{ form.template_id.label }}</label>
+                            {{ form.template_id(class="form-control") }}
+                            {% for error in form.template_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% if form.template_id.choices|length == 0 %}
+                            <div class="form-text text-warning">
+                                No templates available. <a href="{{ url_for('new_template') }}">Create a template</a> first.
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="segment_id" class="form-label">{{ form.segment_id.label }}</label>
+                            {{ form.segment_id(class="form-control") }}
+                            {% for error in form.segment_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% if form.segment_id.choices|length == 0 %}
+                            <div class="form-text text-warning">
+                                No segments available. <a href="{{ url_for('new_segment') }}">Create a segment</a> first.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="smtp_config_id" class="form-label">{{ form.smtp_config_id.label }}</label>
+                            {{ form.smtp_config_id(class="form-control") }}
+                            {% for error in form.smtp_config_id.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% if form.smtp_config_id.choices|length == 0 %}
+                            <div class="form-text text-warning">
+                                No SMTP configurations available. <a href="{{ url_for('new_smtp_config') }}">Create an SMTP configuration</a> first.
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="scheduled_time" class="form-label">{{ form.scheduled_time.label }}</label>
+                            {{ form.scheduled_time(class="form-control datetime-picker") }}
+                            {% for error in form.scheduled_time.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Important:</strong> Make sure your segment has contacts and your SMTP configuration is correct before scheduling a job.
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('jobs') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Jobs
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

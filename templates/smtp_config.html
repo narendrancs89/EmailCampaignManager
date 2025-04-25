@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}SMTP Configurations - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-server me-2"></i>SMTP Configurations</h1>
+    <a href="{{ url_for('new_smtp_config') }}" class="btn btn-primary">
+        <i class="fas fa-plus-circle me-2"></i>New Configuration
+    </a>
+</div>
+
+{% if configs %}
+<div class="row">
+    {% for config in configs %}
+    <div class="col-md-6 mb-4">
+        <div class="card item-card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">{{ config.name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Server:</strong> {{ config.host }}:{{ config.port }}
+                </div>
+                <div class="mb-3">
+                    <strong>Username:</strong> {{ config.username }}
+                </div>
+                <div class="mb-3">
+                    <strong>From:</strong> {{ config.from_name + ' <' + config.from_email + '>' if config.from_name else config.from_email }}
+                </div>
+                <div class="mb-3">
+                    <strong>Security:</strong> 
+                    {% if config.use_tls %}
+                    <span class="badge bg-success">TLS</span>
+                    {% elif config.use_ssl %}
+                    <span class="badge bg-success">SSL</span>
+                    {% else %}
+                    <span class="badge bg-warning">None</span>
+                    {% endif %}
+                </div>
+                
+                <div class="item-actions">
+                    <a href="{{ url_for('edit_smtp_config', id=config.id) }}" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </a>
+                    <button class="btn btn-sm btn-outline-info me-2" id="test-smtp" data-config-id="{{ config.id }}">
+                        <i class="fas fa-vial me-1"></i> Test
+                    </button>
+                    <form method="post" action="{{ url_for('delete_smtp_config', id=config.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm">
+                            <i class="fas fa-trash-alt me-1"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-footer text-muted small">
+                Created: {{ config.created_at.strftime('%Y-%m-%d') }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-server fa-4x text-muted"></i>
+        </div>
+        <h3>No SMTP configurations found</h3>
+        <p class="mb-4">Create your first SMTP configuration to send emails</p>
+        <a href="{{ url_for('new_smtp_config') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Create Configuration
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/smtp.js') }}"></script>
+{% endblock %}

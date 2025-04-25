@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Contacts - {{ segment.name }} - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-address-book me-2"></i>Contacts: {{ segment.name }}</h1>
+    <div>
+        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addContactModal">
+            <i class="fas fa-plus-circle me-1"></i> Add Contact
+        </button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importContactsModal">
+            <i class="fas fa-file-import me-1"></i> Import Contacts
+        </button>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Contact List</h5>
+        <span class="badge bg-primary rounded-pill">{{ contacts|length }} contacts</span>
+    </div>
+    
+    {% if contacts %}
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Added Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in contacts %}
+                <tr>
+                    <td>{{ contact.email }}</td>
+                    <td>{{ contact.name or '-' }}</td>
+                    <td>{{ contact.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('delete_contact', segment_id=segment.id, contact_id=contact.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card-body text-center py-5">
+        <div class="mb-3">
+            <i class="fas fa-address-book fa-4x text-muted"></i>
+        </div>
+        <h3>No contacts in this segment</h3>
+        <p class="mb-3">Add contacts to this segment to get started with your email campaign</p>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addContactModal">
+            <i class="fas fa-plus-circle me-1"></i> Add Contact
+        </button>
+        <button type="button" class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#importContactsModal">
+            <i class="fas fa-file-import me-1"></i> Import Contacts
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<div class="d-flex justify-content-between">
+    <a href="{{ url_for('segments') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Segments
+    </a>
+    
+    {% if contacts %}
+    <a href="{{ url_for('new_job') }}" class="btn btn-primary">
+        <i class="fas fa-paper-plane me-1"></i> Create Email Campaign
+    </a>
+    {% endif %}
+</div>
+
+<!-- Add Contact Modal -->
+<div class="modal fade" id="addContactModal" tabindex="-1" aria-labelledby="addContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addContactModalLabel">Add Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{{ url_for('segment_contacts', id=segment.id) }}">
+                <div class="modal-body">
+                    {{ contact_form.hidden_tag() }}
+                    <input type="hidden" name="add_contact" value="1">
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">{{ contact_form.email.label }}</label>
+                        {{ contact_form.email(class="form-control", placeholder="Enter contact email") }}
+                        {% for error in contact_form.email.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">{{ contact_form.name.label }} (Optional)</label>
+                        {{ contact_form.name(class="form-control", placeholder="Enter contact name") }}
+                        {% for error in contact_form.name.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    {{ contact_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Import Contacts Modal -->
+<div class="modal fade" id="importContactsModal" tabindex="-1" aria-labelledby="importContactsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importContactsModalLabel">Import Contacts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{{ url_for('segment_contacts', id=segment.id) }}">
+                <div class="modal-body">
+                    {{ import_form.hidden_tag() }}
+                    <input type="hidden" name="import_contacts" value="1">
+                    
+                    <div class="mb-3">
+                        <label for="contacts" class="form-label">{{ import_form.contacts.label }}</label>
+                        {{ import_form.contacts(class="form-control", rows=10, placeholder="email@example.com,John Doe\nemail2@example.com,Jane Doe") }}
+                        <div class="form-text">
+                            Enter one contact per line in the format: email,name<br>
+                            If no name is needed, simply enter the email address.
+                        </div>
+                        {% for error in import_form.contacts.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    {{ import_form.submit(class="btn btn-success") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add confirmation for delete actions
+    const deleteButtons = document.querySelectorAll('.delete-confirm');
+    if (deleteButtons.length > 0) {
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to delete this contact? This action cannot be undone.')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

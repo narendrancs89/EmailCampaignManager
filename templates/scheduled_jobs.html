@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Scheduled Jobs - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-calendar-alt me-2"></i>Scheduled Jobs</h1>
+    <a href="{{ url_for('new_job') }}" class="btn btn-primary">
+        <i class="fas fa-plus-circle me-2"></i>Schedule New Job
+    </a>
+</div>
+
+{% if jobs %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Email Jobs</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Job Name</th>
+                    <th>Scheduled Time</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Template</th>
+                    <th>Segment</th>
+                    <th>SMTP</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td>{{ job.name }}</td>
+                    <td>{{ job.scheduled_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <span class="badge badge-{{ job.status }}">
+                            {{ job.status.capitalize() }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if job.total_emails > 0 %}
+                        <div class="progress" style="height: 20px;">
+                            {% set progress = (job.sent_emails / job.total_emails) * 100 %}
+                            <div class="progress-bar {% if job.status == 'failed' %}bg-danger{% elif job.status == 'completed' %}bg-success{% else %}bg-primary{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ progress }}%;" 
+                                 aria-valuenow="{{ progress }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ job.sent_emails }}/{{ job.total_emails }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <span class="text-muted">No emails</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ job.template.name }}</td>
+                    <td>{{ job.segment.name }}</td>
+                    <td>{{ job.smtp_config.name }}</td>
+                    <td>
+                        {% if job.status in ['scheduled', 'running'] %}
+                        <form method="post" action="{{ url_for('cancel_job', id=job.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-warning cancel-confirm">
+                                <i class="fas fa-ban me-1"></i> Cancel
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-calendar-alt fa-4x text-muted"></i>
+        </div>
+        <h3>No jobs scheduled</h3>
+        <p class="mb-4">Schedule your first email job to get started</p>
+        <a href="{{ url_for('new_job') }}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Schedule Job
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add confirmation for cancel actions
+    const cancelButtons = document.querySelectorAll('.cancel-confirm');
+    if (cancelButtons.length > 0) {
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to cancel this job? This action cannot be undone.')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

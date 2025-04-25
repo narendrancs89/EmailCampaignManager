@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if template else 'New' }} Email Template - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-{{ 'edit' if template else 'plus-circle' }} me-2"></i>
+        {{ 'Edit' if template else 'New' }} Email Template
+    </h1>
+    <a href="{{ url_for('templates') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to Templates
+    </a>
+</div>
+
+<form id="email-form" method="post" action="">
+    {{ form.hidden_tag() }}
+    {{ form.template_id }}
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="name" class="form-label">{{ form.name.label }}</label>
+                {{ form.name(class="form-control") }}
+                {% for error in form.name.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="subject" class="form-label">{{ form.subject.label }}</label>
+                {{ form.subject(class="form-control") }}
+                {% for error in form.subject.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col">
+            <div class="mb-3">
+                <label for="type" class="form-label">{{ form.type.label }}</label>
+                {{ form.type(class="form-control") }}
+                {% for error in form.type.errors %}
+                <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+                <div class="form-text">
+                    <strong>Click Tracking:</strong> Tracks when recipients click links in your email<br>
+                    <strong>Open Tracking:</strong> Tracks when recipients open your email<br>
+                    <strong>Opt-out Template:</strong> Includes unsubscribe options in your email
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Email Content</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="editor-container">
+                <div class="editor-column">
+                    <textarea id="email-editor" name="email-editor"></textarea>
+                    {{ form.content }}
+                </div>
+                <div class="preview-column">
+                    <div class="preview-header">
+                        <h6 class="mb-0">Preview</h6>
+                        <div id="preview-subject" class="fw-bold">{{ form.subject.data or 'Email Subject' }}</div>
+                    </div>
+                    <div id="preview-pane" class="preview-content"></div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="mb-0">
+                <strong>Personalization Variables:</strong>
+                <code>{{name}}</code> - Recipient's name,
+                <code>{{email}}</code> - Recipient's email
+            </div>
+        </div>
+    </div>
+    
+    <div class="d-flex justify-content-between">
+        <a href="{{ url_for('templates') }}" class="btn btn-outline-secondary">Cancel</a>
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+{% endblock %}
