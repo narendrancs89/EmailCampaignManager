@@ -25,15 +25,21 @@
                 {% for error in form.name.errors %}
                 <div class="text-danger">{{ error }}</div>
                 {% endfor %}
+                <div class="form-text">
+                    A descriptive name helps you identify this template when creating campaigns
+                </div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="subject" class="form-label">{{ form.subject.label }}</label>
+                <label for="subject" class="form-label">{{ form.subject.label }} <span data-bs-toggle="tooltip" data-tooltip-type="best-practice" title="<strong>Subject Line Best Practices:</strong><br>• Keep subject lines under 50 characters<br>• Avoid spam trigger words like 'free' or 'discount'<br>• Use personalization when possible<br>• Create a sense of urgency without being misleading<br>• A/B test different subject lines for better results"><i class="fas fa-info-circle text-primary"></i></span></label>
                 {{ form.subject(class="form-control") }}
                 {% for error in form.subject.errors %}
                 <div class="text-danger">{{ error }}</div>
                 {% endfor %}
+                <div class="form-text">
+                    The subject line is the most critical factor affecting open rates
+                </div>
             </div>
         </div>
     </div>
@@ -41,11 +47,14 @@
     <div class="row mb-3">
         <div class="col-md-6">
             <div class="mb-3">
-                <label for="type" class="form-label">{{ form.type.label }}</label>
+                <label for="type" class="form-label">{{ form.type.label }} <span data-bs-toggle="tooltip" data-tooltip-type="info" title="<strong>Template Types:</strong><br>• Standard: General purpose emails<br>• Newsletter: Regular updates with valuable content<br>• Promotional: Sales, offers, and discount announcements<br>• Transactional: Order confirmations, receipts, etc."><i class="fas fa-info-circle text-info"></i></span></label>
                 {{ form.type(class="form-control") }}
                 {% for error in form.type.errors %}
                 <div class="text-danger">{{ error }}</div>
                 {% endfor %}
+                <div class="form-text">
+                    Choose a template type that best describes the email's purpose
+                </div>
             </div>
         </div>
     </div>
@@ -54,7 +63,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Tracking Options</h5>
+                    <h5 class="mb-0">Tracking Options <span data-bs-toggle="tooltip" data-tooltip-type="warning" title="<strong>Email Tracking Compliance:</strong><br>• Always disclose your tracking practices in your privacy policy<br>• Comply with GDPR, CAN-SPAM, and other applicable laws<br>• Never track without recipient consent (implicit or explicit)<br>• Always provide easy unsubscribe options<br>• Maintain secure storage of all collected tracking data"><i class="fas fa-shield-alt text-warning"></i></span></h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -62,7 +71,7 @@
                             <div class="form-check form-switch mb-2">
                                 {{ form.has_open_tracking(class="form-check-input") }}
                                 <label class="form-check-label" for="has_open_tracking">
-                                    {{ form.has_open_tracking.label }}
+                                    {{ form.has_open_tracking.label }} <span data-bs-toggle="tooltip" data-tooltip-type="idea" title="<strong>Open Tracking:</strong><br>• Tracks when recipients open your email<br>• Works by embedding a small transparent tracking pixel<br>• Average open rates across industries: 15-25%<br>• May be blocked by some email clients<br>• Helps measure engagement and timing preferences"><i class="fas fa-envelope-open text-success"></i></span>
                                 </label>
                                 <div class="form-text">
                                     Tracks when recipients open your email
@@ -73,7 +82,7 @@
                             <div class="form-check form-switch mb-2">
                                 {{ form.has_click_tracking(class="form-check-input") }}
                                 <label class="form-check-label" for="has_click_tracking">
-                                    {{ form.has_click_tracking.label }}
+                                    {{ form.has_click_tracking.label }} <span data-bs-toggle="tooltip" data-tooltip-type="idea" title="<strong>Click Tracking:</strong><br>• Monitors which links recipients click in your email<br>• Works by redirecting links through our tracking system<br>• Average click rates: 2.5-5% across industries<br>• Click-to-open ratio is a key engagement metric<br>• Place important links early in the email for better results"><i class="fas fa-mouse-pointer text-success"></i></span>
                                 </label>
                                 <div class="form-text">
                                     Tracks when recipients click links in your email
@@ -84,7 +93,7 @@
                             <div class="form-check form-switch mb-2">
                                 {{ form.has_optout(class="form-check-input") }}
                                 <label class="form-check-label" for="has_optout">
-                                    {{ form.has_optout.label }}
+                                    {{ form.has_optout.label }} <span data-bs-toggle="tooltip" data-tooltip-type="warning" title="<strong>Unsubscribe Requirements:</strong><br>• Required by CAN-SPAM Act and GDPR regulations<br>• Must be clearly visible and easy to use<br>• Should process opt-outs within 10 business days<br>• Cannot charge a fee or require more than email address<br>• Failure to include can result in significant penalties"><i class="fas fa-user-slash text-warning"></i></span>
                                 </label>
                                 <div class="form-text">
                                     Includes unsubscribe options in your email
@@ -99,7 +108,7 @@
     
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Email Content</h5>
+            <h5 class="mb-0">Email Content <span data-bs-toggle="tooltip" data-tooltip-type="best-practice" title="<strong>Email Content Best Practices:</strong><br>• Keep emails concise (50-125 words performs best)<br>• Use a clear call-to-action (CTA) button<br>• Maintain a text-to-image ratio of at least 80:20<br>• Use responsive design that works on mobile<br>• Include ALT text for all images<br>• Test your emails across different clients before sending"><i class="fas fa-lightbulb text-primary"></i></span></h5>
         </div>
         <div class="card-body p-0">
             <div class="editor-container">
@@ -118,7 +127,9 @@
         </div>
         <div class="card-footer">
             <div class="mb-0">
-                <strong>Personalization Variables:</strong>
+                <strong>Personalization Variables: </strong>
+                <span data-bs-toggle="tooltip" data-tooltip-type="idea" title="<strong>Personalization Stats:</strong><br>• Emails with personalized subject lines are 26% more likely to be opened<br>• Personalized emails deliver 6x higher transaction rates<br>• Adding recipient's name to subject increases open rates by 14%<br>• Segment-targeted emails generate 58% of all revenue<br>• Personalized CTAs convert 202% better than generic CTAs"><i class="fas fa-chart-line text-success"></i></span>
+                <br>
                 <code>{{name}}</code> - Recipient's name,
                 <code>{{email}}</code> - Recipient's email
             </div>
