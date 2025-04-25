@@ -39,23 +39,33 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        logging.info(f"User {current_user.username} already authenticated, redirecting to dashboard")
         return redirect(url_for('dashboard'))
     
     form = LoginForm()
     if form.validate_on_submit():
+        logging.info(f"Login form submitted for username: {form.username.data}")
         user = User.query.filter_by(username=form.username.data).first()
         
-        if user is None or not user.check_password(form.password.data):
+        if user is None:
+            logging.error(f"Login error: User {form.username.data} not found")
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
+            
+        if not user.check_password(form.password.data):
+            logging.error(f"Login error: Invalid password for user {form.username.data}")
             flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
             
         # Check if user account is active
         if not user.is_active:
+            logging.warning(f"Login warning: User {form.username.data} account is not active")
             flash('Your account is not active. Please contact an administrator.', 'warning')
             return redirect(url_for('login'))
         
         # Update last login time
         user.last_login = datetime.utcnow()
+        logging.info(f"User {form.username.data} authenticated successfully")
         
         # Record session info
         user_session = UserSession(
