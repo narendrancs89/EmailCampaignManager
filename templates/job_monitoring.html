@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block title %}Job Monitoring - {{ job.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Job Monitoring: {{ job.name }}</h1>
+        <div>
+            {% if job.status == 'scheduled' %}
+                <span class="badge bg-secondary">Scheduled</span>
+            {% elif job.status == 'running' %}
+                <span class="badge bg-primary">Running</span>
+            {% elif job.status == 'paused' %}
+                <span class="badge bg-warning">Paused</span>
+            {% elif job.status == 'completed' %}
+                <span class="badge bg-success">Completed</span>
+            {% elif job.status == 'cancelled' %}
+                <span class="badge bg-danger">Cancelled</span>
+            {% elif job.status == 'failed' %}
+                <span class="badge bg-danger">Failed</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Job Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Scheduled Time:</strong>
+                        <div>{{ job.scheduled_time.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Created:</strong>
+                        <div>{{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Template:</strong>
+                        <div>{{ job.template.name }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Segment:</strong>
+                        <div>{{ job.segment.name }} ({{ job.total_emails }} contacts)</div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>SMTP Configuration:</strong>
+                        <div>{{ job.smtp_config.name }}</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <div class="btn-group">
+                            {% if job.status == 'scheduled' %}
+                                <a href="{{ url_for('job_control', job_id=job.id, action='start') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-play me-1"></i> Start Now
+                                </a>
+                                <a href="{{ url_for('job_control', job_id=job.id, action='cancel') }}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </a>
+                            {% elif job.status == 'running' %}
+                                <a href="{{ url_for('job_control', job_id=job.id, action='pause') }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-pause me-1"></i> Pause
+                                </a>
+                                <a href="{{ url_for('job_control', job_id=job.id, action='stop') }}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-stop me-1"></i> Stop
+                                </a>
+                            {% elif job.status == 'paused' %}
+                                <a href="{{ url_for('job_control', job_id=job.id, action='resume') }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-play me-1"></i> Resume
+                                </a>
+                                <a href="{{ url_for('job_control', job_id=job.id, action='stop') }}" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-stop me-1"></i> Stop
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Sending Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3" style="height: 25px;">
+                        {% set progress = 0 %}
+                        {% if job.total_emails > 0 %}
+                            {% set progress = (job.sent_emails / job.total_emails) * 100 %}
+                        {% endif %}
+                        <div class="progress-bar bg-success" role="progressbar" 
+                            style="width: {{ progress }}%;" 
+                            aria-valuenow="{{ progress }}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="100">
+                            {{ progress|round(1) }}%
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-light">
+                                <div class="card-body p-2 text-center">
+                                    <h6>Total</h6>
+                                    <h3>{{ job.total_emails }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body p-2 text-center">
+                                    <h6>Sent</h6>
+                                    <h3>{{ job.sent_emails }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning">
+                                <div class="card-body p-2 text-center">
+                                    <h6>Failed</h6>
+                                    <h3>{{ job.failed_emails }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body p-2 text-center">
+                                    <h6>Remaining</h6>
+                                    <h3>{{ job.total_emails - (job.sent_emails + job.failed_emails) }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body p-2 text-center">
+                                    <h6>Started At</h6>
+                                    <p>{{ job.started_at.strftime('%H:%M:%S') if job.started_at else 'Not started' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body p-2 text-center">
+                                    <h6>Send Rate</h6>
+                                    <p>{{ job.avg_sending_rate|round(2) }} emails/sec</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body p-2 text-center">
+                                    <h6>Batch Size</h6>
+                                    <p>{{ job.batch_size }} emails</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="realtime-chart" style="height: 250px;">
+                        <!-- Chart will be rendered here -->
+                        <div class="d-flex justify-content-center align-items-center h-100">
+                            <p class="text-muted">Real-time data will appear here once job is running...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Job Logs</h5>
+                    <button class="btn btn-sm btn-outline-secondary" id="refresh-logs">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Level</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-container">
+                                {% for log in logs %}
+                                <tr class="{{ 'table-danger' if log.level == 'error' else 'table-warning' if log.level == 'warning' else '' }}">
+                                    <td>{{ log.timestamp.strftime('%H:%M:%S') }}</td>
+                                    <td>
+                                        {% if log.level == 'info' %}
+                                            <span class="badge bg-info">INFO</span>
+                                        {% elif log.level == 'warning' %}
+                                            <span class="badge bg-warning">WARNING</span>
+                                        {% elif log.level == 'error' %}
+                                            <span class="badge bg-danger">ERROR</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.message }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No logs available yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Opens Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="text-center">
+                            <h2>{{ job.opened_emails }}</h2>
+                            <p class="mb-0">Total Opens</p>
+                        </div>
+                        <div class="mx-4"></div>
+                        <div class="text-center">
+                            {% if job.sent_emails > 0 %}
+                                <h2>{{ ((job.opened_emails / job.sent_emails) * 100)|round(1) }}%</h2>
+                            {% else %}
+                                <h2>0%</h2>
+                            {% endif %}
+                            <p class="mb-0">Open Rate</p>
+                        </div>
+                    </div>
+                    <div id="opens-chart" style="height: 200px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Clicks Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="text-center">
+                            <h2>{{ job.clicked_emails }}</h2>
+                            <p class="mb-0">Total Clicks</p>
+                        </div>
+                        <div class="mx-4"></div>
+                        <div class="text-center">
+                            {% if job.sent_emails > 0 %}
+                                <h2>{{ ((job.clicked_emails / job.sent_emails) * 100)|round(1) }}%</h2>
+                            {% else %}
+                                <h2>0%</h2>
+                            {% endif %}
+                            <p class="mb-0">Click Rate</p>
+                        </div>
+                    </div>
+                    <div id="clicks-chart" style="height: 200px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh the page every 5 seconds if the job is running or paused
+    const jobStatus = "{{ job.status }}";
+    if (jobStatus === 'running' || jobStatus === 'paused') {
+        setTimeout(function() {
+            window.location.reload();
+        }, 5000);
+    }
+    
+    // Refresh logs button
+    document.getElementById('refresh-logs').addEventListener('click', function() {
+        fetch("{{ url_for('get_job_logs', job_id=job.id) }}")
+            .then(response => response.json())
+            .then(data => {
+                const logsContainer = document.getElementById('logs-container');
+                let logsHtml = '';
+                
+                if (data.logs.length === 0) {
+                    logsHtml = '<tr><td colspan="3" class="text-center">No logs available yet</td></tr>';
+                } else {
+                    data.logs.forEach(log => {
+                        const rowClass = log.level === 'error' ? 'table-danger' : 
+                                        log.level === 'warning' ? 'table-warning' : '';
+                        const badgeClass = log.level === 'info' ? 'bg-info' : 
+                                          log.level === 'warning' ? 'bg-warning' : 'bg-danger';
+                        
+                        logsHtml += `
+                            <tr class="${rowClass}">
+                                <td>${log.timestamp}</td>
+                                <td><span class="badge ${badgeClass}">${log.level.toUpperCase()}</span></td>
+                                <td>${log.message}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                
+                logsContainer.innerHTML = logsHtml;
+            })
+            .catch(error => console.error('Error fetching logs:', error));
+    });
+    
+    // Initialize charts if the job has data
+    if ({{ job.total_emails }} > 0) {
+        // Example chart data - in a real app, you'd fetch this from your backend
+        const openData = {
+            labels: ['00:00', '06:00', '12:00', '18:00', '24:00'],
+            datasets: [{
+                label: 'Opens over time',
+                data: [0, {{ job.opened_emails * 0.2 }}, {{ job.opened_emails * 0.5 }}, {{ job.opened_emails * 0.8 }}, {{ job.opened_emails }}],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1,
+                fill: false
+            }]
+        };
+        
+        const clickData = {
+            labels: ['00:00', '06:00', '12:00', '18:00', '24:00'],
+            datasets: [{
+                label: 'Clicks over time',
+                data: [0, {{ job.clicked_emails * 0.2 }}, {{ job.clicked_emails * 0.5 }}, {{ job.clicked_emails * 0.7 }}, {{ job.clicked_emails }}],
+                borderColor: 'rgba(153, 102, 255, 1)',
+                tension: 0.1,
+                fill: false
+            }]
+        };
+        
+        // Create charts
+        const opensChart = document.getElementById('opens-chart');
+        if (opensChart) {
+            new Chart(opensChart, {
+                type: 'line',
+                data: openData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        const clicksChart = document.getElementById('clicks-chart');
+        if (clicksChart) {
+            new Chart(clicksChart, {
+                type: 'line',
+                data: clickData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

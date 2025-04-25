@@ -124,8 +124,40 @@ class EmailTemplate(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
+    # Template version tracking
+    is_draft = db.Column(db.Boolean, default=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('email_template.id'), nullable=True)
+    version = db.Column(db.Integer, default=1)
+    
     # Relationships
     jobs = db.relationship('ScheduledJob', backref='template', lazy='dynamic')
+    versions = db.relationship('EmailTemplate', backref=db.backref('parent', remote_side=[id]), lazy='dynamic')
+    
+    def create_copy(self, new_name=None):
+        """Create a copy of this template with a new name"""
+        from copy import copy
+        
+        # Create a new instance with the same attributes
+        template_copy = EmailTemplate()
+        for column in self.__table__.columns:
+            if column.name not in ['id', 'created_at', 'updated_at', 'name', 'parent_id', 'version']:
+                setattr(template_copy, column.name, getattr(self, column.name))
+        
+        # Set the new template's name
+        if new_name:
+            template_copy.name = new_name
+        else:
+            template_copy.name = f"{self.name} (Copy)"
+            
+        # Set parent relationship and version
+        template_copy.parent_id = self.id
+        template_copy.version = self.version + 1
+        
+        # Reset timestamps
+        template_copy.created_at = datetime.utcnow()
+        template_copy.updated_at = datetime.utcnow()
+        
+        return template_copy
     
     def __repr__(self):
         return f'<EmailTemplate {self.name}>'
@@ -134,7 +166,8 @@ class ScheduledJob(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     scheduled_time = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(20), default='scheduled')  # scheduled, running, completed, failed
+    # scheduled, paused, running, completed, cancelled, failed
+    status = db.Column(db.String(20), default='scheduled')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -142,12 +175,23 @@ class ScheduledJob(db.Model):
     segment_id = db.Column(db.Integer, db.ForeignKey('email_segment.id'), nullable=False)
     smtp_config_id = db.Column(db.Integer, db.ForeignKey('smtp_config.id'), nullable=False)
     
+    # Job execution control fields
+    started_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    current_batch = db.Column(db.Integer, default=0)
+    batch_size = db.Column(db.Integer, default=100)
+    
     # Statistics
     total_emails = db.Column(db.Integer, default=0)
     sent_emails = db.Column(db.Integer, default=0)
     failed_emails = db.Column(db.Integer, default=0)
     opened_emails = db.Column(db.Integer, default=0)
     clicked_emails = db.Column(db.Integer, default=0)
+    
+    # Added timing statistics
+    sending_started_at = db.Column(db.DateTime, nullable=True)
+    sending_completed_at = db.Column(db.DateTime, nullable=True)
+    avg_sending_rate = db.Column(db.Float, default=0.0)  # emails per second
     
     def __repr__(self):
         return f'<ScheduledJob {self.name}>'
