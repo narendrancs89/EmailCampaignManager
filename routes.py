@@ -1248,7 +1248,9 @@ def new_job():
         segment = EmailSegment.query.get(form.segment_id.data)
         if segment.emails.count() == 0:
             flash('The selected segment has no contacts. Please add contacts before scheduling a job.', 'danger')
-            return render_template('job_form.html', title='New Email Job', form=form)
+            # Get SMTP configs for the JavaScript dropdown
+            smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
+            return render_template('job_form.html', title='New Email Job', form=form, smtp_configs=smtp_configs)
         
         job = ScheduledJob(
             name=form.name.data,
@@ -1266,7 +1268,9 @@ def new_job():
         flash('Email job scheduled successfully!', 'success')
         return redirect(url_for('jobs'))
     
-    return render_template('job_form.html', title='New Email Job', form=form)
+    # Get SMTP configs for the JavaScript dropdown
+    smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
+    return render_template('job_form.html', title='New Email Job', form=form, smtp_configs=smtp_configs)
 
 @app.route('/job/<int:job_id>/monitoring')
 @login_required
