@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Email List Contacts - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">
+            <i class="fas fa-users me-2"></i> Contacts: {{ email_list.name }}
+        </h1>
+        <p class="text-muted">{{ email_list.description }}</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs" id="contactsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="view-tab" data-bs-toggle="tab" data-bs-target="#view" type="button" role="tab" aria-controls="view" aria-selected="true">
+                    <i class="fas fa-table me-1"></i> View Contacts ({{ contacts|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#add" type="button" role="tab" aria-controls="add" aria-selected="false">
+                    <i class="fas fa-user-plus me-1"></i> Add Contact
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="import-tab" data-bs-toggle="tab" data-bs-target="#import" type="button" role="tab" aria-controls="import" aria-selected="false">
+                    <i class="fas fa-file-import me-1"></i> Import Contacts
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="contactsTabsContent">
+            <!-- View Contacts Tab -->
+            <div class="tab-pane fade show active" id="view" role="tabpanel" aria-labelledby="view-tab">
+                <div class="card border-top-0 rounded-0 rounded-bottom">
+                    <div class="card-body">
+                        <!-- Search and Filter Controls -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" id="contactSearch" class="form-control" placeholder="Search contacts...">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <span class="badge bg-primary">{{ contacts|length }} Total Contacts</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Contacts Table -->
+                        {% if contacts %}
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="contactsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Name</th>
+                                        <th>Company</th>
+                                        <th>Phone</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for contact in contacts %}
+                                    <tr>
+                                        <td>{{ contact.email }}</td>
+                                        <td>{{ contact.name or '-' }}</td>
+                                        <td>{{ contact.company or '-' }}</td>
+                                        <td>{{ contact.phone or '-' }}</td>
+                                        <td>{{ contact.created_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            <form action="{{ url_for('admin_delete_contact', list_id=email_list.id, contact_id=contact.id) }}" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this contact?')">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center p-5">
+                            <i class="fas fa-users text-muted mb-3" style="font-size: 4rem;"></i>
+                            <p class="lead">No contacts in this list</p>
+                            <p>Use the tabs above to add contacts manually or import from a CSV file.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Add Contact Tab -->
+            <div class="tab-pane fade" id="add" role="tabpanel" aria-labelledby="add-tab">
+                <div class="card border-top-0 rounded-0 rounded-bottom">
+                    <div class="card-body">
+                        <form method="post">
+                            {{ contact_form.hidden_tag() }}
+                            <input type="hidden" name="add_contact" value="1">
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ contact_form.email.id }}" class="form-label">Email Address *</label>
+                                    {{ contact_form.email(class="form-control" + (" is-invalid" if contact_form.email.errors else "")) }}
+                                    {% if contact_form.email.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in contact_form.email.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ contact_form.name.id }}" class="form-label">Name</label>
+                                    {{ contact_form.name(class="form-control" + (" is-invalid" if contact_form.name.errors else "")) }}
+                                    {% if contact_form.name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in contact_form.name.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ contact_form.company.id }}" class="form-label">Company</label>
+                                    {{ contact_form.company(class="form-control" + (" is-invalid" if contact_form.company.errors else "")) }}
+                                    {% if contact_form.company.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in contact_form.company.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ contact_form.phone.id }}" class="form-label">Phone</label>
+                                    {{ contact_form.phone(class="form-control" + (" is-invalid" if contact_form.phone.errors else "")) }}
+                                    {% if contact_form.phone.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in contact_form.phone.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ contact_form.additional_data.id }}" class="form-label">Additional Data (JSON format)</label>
+                                {{ contact_form.additional_data(class="form-control" + (" is-invalid" if contact_form.additional_data.errors else ""), rows=3) }}
+                                <div class="form-text">Optional. Use JSON format, e.g. {"city": "New York", "tags": ["customer", "vip"]}</div>
+                                {% if contact_form.additional_data.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in contact_form.additional_data.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-user-plus me-1"></i> Add Contact
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Import Contacts Tab -->
+            <div class="tab-pane fade" id="import" role="tabpanel" aria-labelledby="import-tab">
+                <div class="card border-top-0 rounded-0 rounded-bottom">
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {{ import_form.hidden_tag() }}
+                            <input type="hidden" name="import_contacts" value="1">
+                            
+                            <div class="alert alert-info">
+                                <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i> CSV Import Format</h5>
+                                <p>Your CSV file should have the following columns:</p>
+                                <pre class="bg-dark text-light p-2">email,name,company,phone</pre>
+                                <p class="mb-0">The first row should contain headers. Only the email column is required.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="{{ import_form.contacts_file.id }}" class="form-label">Upload CSV File</label>
+                                {{ import_form.contacts_file(class="form-control" + (" is-invalid" if import_form.contacts_file.errors else "")) }}
+                                <div class="form-text">Select a CSV file to import contacts.</div>
+                                {% if import_form.contacts_file.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in import_form.contacts_file.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-center mb-3">
+                                <h6 class="text-muted">- OR -</h6>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="{{ import_form.contacts.id }}" class="form-label">Paste CSV Data</label>
+                                {{ import_form.contacts(class="form-control" + (" is-invalid" if import_form.contacts.errors else ""), rows=5) }}
+                                <div class="form-text">Paste CSV data directly. Each line should be in the format: email,name,company,phone</div>
+                                {% if import_form.contacts.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in import_form.contacts.errors %}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-file-import me-1"></i> Import Contacts
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <a href="{{ url_for('admin_email_lists') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Email Lists
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Contact search functionality
+    const searchInput = document.getElementById('contactSearch');
+    const contactsTable = document.getElementById('contactsTable');
+    
+    if (searchInput && contactsTable) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = contactsTable.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const email = row.cells[0].textContent.toLowerCase();
+                const name = row.cells[1].textContent.toLowerCase();
+                const company = row.cells[2].textContent.toLowerCase();
+                
+                if (email.includes(searchTerm) || name.includes(searchTerm) || company.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

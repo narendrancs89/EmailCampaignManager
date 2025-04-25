@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Reject User Request - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">
+            <i class="fas fa-user-times me-2"></i> Reject User Request
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Confirm Rejection
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <p><strong>You are about to reject the registration request for:</strong></p>
+                    <ul>
+                        <li><strong>Username:</strong> {{ request.username }}</li>
+                        <li><strong>Email:</strong> {{ request.email }}</li>
+                        <li><strong>Requested on:</strong> {{ request.request_date.strftime('%Y-%m-%d %H:%M') }}</li>
+                    </ul>
+                    <p>This action cannot be undone. The user will be notified by email.</p>
+                </div>
+                
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.rejection_reason.id }}" class="form-label">Rejection Reason</label>
+                        {{ form.rejection_reason(class="form-control", rows=4, placeholder="Provide a reason for rejecting this request") }}
+                        <div class="form-text">This will be included in the email sent to the user.</div>
+                        {% if form.rejection_reason.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.rejection_reason.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_user_requests') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-user-times me-1"></i> Reject Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

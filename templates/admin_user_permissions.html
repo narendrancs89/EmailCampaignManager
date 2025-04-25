@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User Permissions - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">
+            <i class="fas fa-key me-2"></i> Edit User Permissions
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user me-2"></i> {{ user.username }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th style="width: 20%;">Email</th>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Registered On</th>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Login</th>
+                            <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Role & Permissions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch mb-3">
+                                {{ form.is_admin(class="form-check-input") }}
+                                <label class="form-check-label fw-bold" for="{{ form.is_admin.id }}">
+                                    Administrator
+                                </label>
+                                <div class="form-text">
+                                    Administrators have full access to all system functions including user management.
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <h6 class="mb-3">Feature Permissions</h6>
+                            
+                            <div class="form-check form-switch mb-3">
+                                {{ form.can_manage_segments(class="form-check-input") }}
+                                <label class="form-check-label" for="{{ form.can_manage_segments.id }}">
+                                    Manage Email Segments
+                                </label>
+                                <div class="form-text">
+                                    Can create, edit, and delete email segments and contacts.
+                                </div>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                {{ form.can_manage_templates(class="form-check-input") }}
+                                <label class="form-check-label" for="{{ form.can_manage_templates.id }}">
+                                    Manage Email Templates
+                                </label>
+                                <div class="form-text">
+                                    Can create, edit, and delete email templates.
+                                </div>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                {{ form.can_manage_jobs(class="form-check-input") }}
+                                <label class="form-check-label" for="{{ form.can_manage_jobs.id }}">
+                                    Schedule Jobs
+                                </label>
+                                <div class="form-text">
+                                    Can schedule email campaigns and view job results.
+                                </div>
+                            </div>
+                            
+                            <div class="form-check form-switch mb-3">
+                                {{ form.can_manage_smtp(class="form-check-input") }}
+                                <label class="form-check-label" for="{{ form.can_manage_smtp.id }}">
+                                    Manage SMTP Configurations
+                                </label>
+                                <div class="form-text">
+                                    Can add, edit, and delete SMTP server configurations.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save Permissions
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

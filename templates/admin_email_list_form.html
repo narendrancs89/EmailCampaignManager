@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if email_list %}Edit Email List{% else %}Create Email List{% endif %} - Email Campaign Manager
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">
+            <i class="fas fa-{% if email_list %}edit{% else %}plus{% endif %} me-2"></i>
+            {% if email_list %}Edit{% else %}Create{% endif %} Email List
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-address-book me-2"></i>
+                    {% if email_list %}Edit "{{ email_list.name }}"{% else %}New Email List{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.name.id }}" class="form-label">List Name</label>
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                        <div class="form-text">Choose a descriptive name for your email list.</div>
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id }}" class="form-label">Description</label>
+                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=4) }}
+                        <div class="form-text">Provide a description of the purpose of this email list.</div>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.description.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_email_lists') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Lists
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> 
+                            {% if email_list %}Save Changes{% else %}Create List{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

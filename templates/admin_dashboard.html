@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Email Campaign Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">
+            <i class="fas fa-user-shield me-2"></i> Admin Dashboard
+        </h1>
+    </div>
+</div>
+
+<!-- Admin Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Pending Requests</h5>
+                <p class="card-text display-6">{{ pending_count }}</p>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="text-white" href="{{ url_for('admin_user_requests') }}">View Details</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Active Users</h5>
+                <p class="card-text display-6">{{ users_count }}</p>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="text-white" href="{{ url_for('admin_users') }}">Manage Users</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Email Lists</h5>
+                <p class="card-text display-6">{{ lists_count }}</p>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="text-white" href="{{ url_for('admin_email_lists') }}">View Lists</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body">
+                <h5 class="card-title">Total Contacts</h5>
+                <p class="card-text display-6">{{ contacts_count }}</p>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="text-dark" href="{{ url_for('admin_email_lists') }}">Manage Contacts</a>
+                <i class="fas fa-angle-right"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Registration Requests -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-clock me-2"></i> Pending Registration Requests
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if pending_requests %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Requested On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in pending_requests %}
+                            <tr>
+                                <td>{{ request.username }}</td>
+                                <td>{{ request.email }}</td>
+                                <td>{{ request.request_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('approve_user_request', id=request.id) }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i> Approve
+                                        </a>
+                                        <a href="{{ url_for('reject_user_request', id=request.id) }}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times"></i> Reject
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No pending registration requests.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ url_for('admin_user_requests') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-1"></i> View All Requests
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Users -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i> Recent Users
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Registered On</th>
+                                <th>Last Login</th>
+                                <th>Admin</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                    <span class="badge bg-primary">Admin</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('admin_user_permissions', id=user.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-key"></i> Permissions
+                                        </a>
+                                        {% if not user.id == current_user.id %}
+                                        <form action="{{ url_for('admin_deactivate_user', id=user.id) }}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to deactivate this user?')">
+                                                <i class="fas fa-user-slash"></i> Deactivate
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No users found.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-users me-1"></i> View All Users
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Lists -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-address-book me-2"></i> Email Lists
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if email_lists %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Created On</th>
+                                <th>Contacts</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for list in email_lists %}
+                            <tr>
+                                <td>{{ list.name }}</td>
+                                <td>{{ list.description|truncate(50) }}</td>
+                                <td>{{ list.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ list.contacts.count() }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('admin_email_list_contacts', id=list.id) }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-users"></i> Contacts
+                                        </a>
+                                        <a href="{{ url_for('admin_edit_email_list', id=list.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form action="{{ url_for('admin_delete_email_list', id=list.id) }}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this list? This will also delete all contacts in the list.')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No email lists found.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ url_for('admin_new_email_list') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Create New List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
