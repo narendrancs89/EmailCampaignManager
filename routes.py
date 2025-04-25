@@ -922,7 +922,12 @@ def delete_contact(segment_id, contact_id):
 @app.route('/templates')
 @login_required
 def templates():
-    templates = EmailTemplate.query.filter_by(user_id=current_user.id).all()
+    # Query templates with parent_id is NULL (root templates) to show main templates
+    templates = EmailTemplate.query.filter_by(
+        user_id=current_user.id, 
+        parent_id=None
+    ).order_by(EmailTemplate.updated_at.desc()).all()
+    
     return render_template('templates.html', title='Email Templates', templates=templates)
 
 @app.route('/templates/new', methods=['GET', 'POST'])
@@ -968,6 +973,8 @@ def edit_template(id):
         template.has_click_tracking = form.has_click_tracking.data
         template.has_open_tracking = form.has_open_tracking.data
         template.has_optout = form.has_optout.data
+        template.version += 1  # Increment version on edit
+        template.updated_at = datetime.utcnow()
         db.session.commit()
         flash('Template updated successfully!', 'success')
         return redirect(url_for('templates'))
@@ -984,6 +991,46 @@ def edit_template(id):
         form.has_optout.data = template.has_optout
     
     return render_template('email_editor.html', title='Edit Template', form=form, template=template)
+
+@app.route('/templates/<int:id>/save-as', methods=['GET', 'POST'])
+@login_required
+def save_template_as(id):
+    """Create a copy of an existing template with a new name"""
+    original_template = EmailTemplate.query.get_or_404(id)
+    
+    # Check if the template belongs to the current user
+    if original_template.user_id != current_user.id:
+        flash('You do not have permission to copy this template.', 'danger')
+        return redirect(url_for('templates'))
+    
+    form = EmailEditorForm()
+    
+    if form.validate_on_submit():
+        # Create a new template based on the original
+        new_template = original_template.create_copy(form.name.data)
+        new_template.subject = form.subject.data
+        new_template.content = form.content.data
+        new_template.type = form.type.data
+        new_template.has_click_tracking = form.has_click_tracking.data
+        new_template.has_open_tracking = form.has_open_tracking.data
+        new_template.has_optout = form.has_optout.data
+
+        db.session.add(new_template)
+        db.session.commit()
+        flash(f'Template saved as "{new_template.name}" successfully!', 'success')
+        return redirect(url_for('templates'))
+    
+    # Pre-populate form with original template data but suggest a new name
+    if request.method == 'GET':
+        form.name.data = f"{original_template.name} (Copy)"
+        form.subject.data = original_template.subject
+        form.content.data = original_template.content
+        form.type.data = original_template.type
+        form.has_click_tracking.data = original_template.has_click_tracking
+        form.has_open_tracking.data = original_template.has_open_tracking
+        form.has_optout.data = original_template.has_optout
+    
+    return render_template('email_editor.html', title='Save Template As', form=form, save_as=True, original_template=original_template)
 
 @app.route('/templates/<int:id>/delete', methods=['POST'])
 @login_required
@@ -1218,6 +1265,158 @@ def new_job():
         return redirect(url_for('jobs'))
     
     return render_template('job_form.html', title='New Email Job', form=form)
+
+@app.route('/job/<int:job_id>/monitoring')
+@login_required
+def job_monitoring(job_id):
+    """Show detailed monitoring page for a job with controls"""
+    job = ScheduledJob.query.get_or_404(job_id)
+    
+    # Check if the job belongs to the current user
+    if job.user_id != current_user.id:
+        flash('You do not have permission to view this job.', 'danger')
+        return redirect(url_for('jobs'))
+    
+    # Get job logs
+    logs = JobLog.query.filter_by(job_id=job_id).order_by(JobLog.timestamp.desc()).all()
+    
+    return render_template('job_monitoring.html', 
+                          title=f'Job Monitoring - {job.name}',
+                          job=job,
+                          logs=logs)
+
+@app.route('/job/<int:job_id>/data')
+@login_required
+def get_job_data(job_id):
+    """Return job data as JSON for AJAX updates"""
+    job = ScheduledJob.query.get_or_404(job_id)
+    
+    # Check if the job belongs to the current user
+    if job.user_id != current_user.id:
+        return jsonify({'error': 'Permission denied'}), 403
+    
+    data = {
+        'id': job.id,
+        'name': job.name,
+        'status': job.status,
+        'started_at': job.started_at.isoformat() if job.started_at else None,
+        'completed_at': job.completed_at.isoformat() if job.completed_at else None,
+        'total_emails': job.total_emails,
+        'sent_emails': job.sent_emails,
+        'failed_emails': job.failed_emails,
+        'opened_emails': job.opened_emails,
+        'clicked_emails': job.clicked_emails,
+        'current_batch': job.current_batch,
+        'batch_size': job.batch_size,
+        'avg_sending_rate': job.avg_sending_rate
+    }
+    
+    return jsonify(data)
+
+@app.route('/job/<int:job_id>/logs')
+@login_required
+def get_job_logs(job_id):
+    """Return job logs as JSON for AJAX updates"""
+    job = ScheduledJob.query.get_or_404(job_id)
+    
+    # Check if the job belongs to the current user
+    if job.user_id != current_user.id:
+        return jsonify({'error': 'Permission denied'}), 403
+    
+    logs = JobLog.query.filter_by(job_id=job_id).order_by(JobLog.timestamp.desc()).all()
+    logs_data = [
+        {
+            'id': log.id,
+            'timestamp': log.timestamp.strftime('%H:%M:%S'),
+            'level': log.level,
+            'message': log.message
+        }
+        for log in logs
+    ]
+    
+    return jsonify({'logs': logs_data})
+
+@app.route('/job/<int:job_id>/control/<action>')
+@login_required
+def job_control(job_id, action):
+    """Control job execution with actions: start, pause, resume, stop, cancel"""
+    job = ScheduledJob.query.get_or_404(job_id)
+    
+    # Check if the job belongs to the current user
+    if job.user_id != current_user.id:
+        flash('You do not have permission to control this job.', 'danger')
+        return redirect(url_for('jobs'))
+    
+    if action == 'start':
+        # Only scheduled jobs can be started
+        if job.status != 'scheduled':
+            flash('Only scheduled jobs can be started.', 'danger')
+        else:
+            job.status = 'running'
+            job.started_at = datetime.utcnow()
+            job.sending_started_at = datetime.utcnow()
+            # Add a log entry
+            log = JobLog(job_id=job_id, level='info', message='Job started manually.')
+            db.session.add(log)
+            db.session.commit()
+            flash('Job started successfully!', 'success')
+            
+    elif action == 'pause':
+        # Only running jobs can be paused
+        if job.status != 'running':
+            flash('Only running jobs can be paused.', 'danger')
+        else:
+            job.status = 'paused'
+            # Add a log entry
+            log = JobLog(job_id=job_id, level='info', message='Job paused by user.')
+            db.session.add(log)
+            db.session.commit()
+            flash('Job paused successfully!', 'success')
+            
+    elif action == 'resume':
+        # Only paused jobs can be resumed
+        if job.status != 'paused':
+            flash('Only paused jobs can be resumed.', 'danger')
+        else:
+            job.status = 'running'
+            # Add a log entry
+            log = JobLog(job_id=job_id, level='info', message='Job resumed by user.')
+            db.session.add(log)
+            db.session.commit()
+            flash('Job resumed successfully!', 'success')
+            
+    elif action == 'stop':
+        # Only running or paused jobs can be stopped
+        if job.status not in ['running', 'paused']:
+            flash('Only running or paused jobs can be stopped.', 'danger')
+        else:
+            job.status = 'completed'
+            job.completed_at = datetime.utcnow()
+            # Add a log entry
+            log = JobLog(job_id=job_id, level='info', message='Job stopped by user.')
+            db.session.add(log)
+            db.session.commit()
+            flash('Job stopped successfully!', 'success')
+            
+    elif action == 'cancel':
+        # Only scheduled jobs can be cancelled
+        if job.status != 'scheduled':
+            flash('Only scheduled jobs can be cancelled.', 'danger')
+        else:
+            job.status = 'cancelled'
+            # Add a log entry
+            log = JobLog(job_id=job_id, level='info', message='Job cancelled by user.')
+            db.session.add(log)
+            db.session.commit()
+            flash('Job cancelled successfully!', 'success')
+    else:
+        flash(f'Invalid action: {action}', 'danger')
+    
+    # Redirect to the appropriate page
+    if action == 'cancel':
+        return redirect(url_for('jobs'))
+    else:
+        return redirect(url_for('job_monitoring', job_id=job_id))
 
 @app.route('/jobs/<int:id>/cancel', methods=['POST'])
 @login_required
