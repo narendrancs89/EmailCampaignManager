@@ -39,21 +39,105 @@
     </div>
     
     <div class="row mb-3">
-        <div class="col">
-            <div class="mb-3">
-                <label for="type" class="form-label">{{ form.type.label }}</label>
-                {{ form.type(class="form-control") }}
-                {% for error in form.type.errors %}
-                <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-                <div class="form-text">
-                    <strong>Click Tracking:</strong> Tracks when recipients click links in your email<br>
-                    <strong>Open Tracking:</strong> Tracks when recipients open your email<br>
-                    <strong>Opt-out Template:</strong> Includes unsubscribe options in your email
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Tracking Options</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-text mb-3">
+                        Select the tracking features you want to enable for this template:
+                    </div>
+                    <div class="row">
+                        <!-- Click Tracking Option -->
+                        <div class="col-md-4">
+                            <div class="card tracking-option-card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        {{ form.has_click_tracking(class="form-check-input", id="has_click_tracking") }}
+                                        <label class="form-check-label fw-bold" for="has_click_tracking">
+                                            <i class="fas fa-link me-1 text-success"></i> Click Tracking
+                                        </label>
+                                    </div>
+                                    <div id="click_tracking_options" class="tracking-options">
+                                        <p class="text-muted small">Tracks when recipients click links in your email</p>
+                                        <div class="mb-3">
+                                            <label for="click_tracking_url" class="form-label small">Tracking URL</label>
+                                            {{ form.click_tracking_url(class="form-control form-control-sm", placeholder="https://example.com/track/click") }}
+                                            {% for error in form.click_tracking_url.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                            {% endfor %}
+                                            <div class="form-text small">URL that will handle click tracking</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Open Tracking Option -->
+                        <div class="col-md-4">
+                            <div class="card tracking-option-card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        {{ form.has_open_tracking(class="form-check-input", id="has_open_tracking") }}
+                                        <label class="form-check-label fw-bold" for="has_open_tracking">
+                                            <i class="fas fa-eye me-1 text-info"></i> Open Tracking
+                                        </label>
+                                    </div>
+                                    <div id="open_tracking_options" class="tracking-options">
+                                        <p class="text-muted small">Tracks when recipients open your email</p>
+                                        <div class="mb-3">
+                                            <label for="open_tracking_url" class="form-label small">Tracking URL</label>
+                                            {{ form.open_tracking_url(class="form-control form-control-sm", placeholder="https://example.com/track/open") }}
+                                            {% for error in form.open_tracking_url.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                            {% endfor %}
+                                            <div class="form-text small">URL that will handle open tracking</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="tracking_image_url" class="form-label small">Tracking Pixel (Optional)</label>
+                                            {{ form.tracking_image_url(class="form-control form-control-sm", placeholder="https://example.com/track/pixel.gif") }}
+                                            {% for error in form.tracking_image_url.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                            {% endfor %}
+                                            <div class="form-text small">URL of 1x1 transparent pixel image for tracking</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Unsubscribe Option -->
+                        <div class="col-md-4">
+                            <div class="card tracking-option-card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        {{ form.has_optout(class="form-check-input", id="has_optout") }}
+                                        <label class="form-check-label fw-bold" for="has_optout">
+                                            <i class="fas fa-ban me-1 text-warning"></i> Unsubscribe Option
+                                        </label>
+                                    </div>
+                                    <div id="optout_options" class="tracking-options">
+                                        <p class="text-muted small">Include unsubscribe link in your email</p>
+                                        <div class="mb-3">
+                                            <label for="optout_url" class="form-label small">Unsubscribe URL</label>
+                                            {{ form.optout_url(class="form-control form-control-sm", placeholder="https://example.com/unsubscribe") }}
+                                            {% for error in form.optout_url.errors %}
+                                            <div class="text-danger small">{{ error }}</div>
+                                            {% endfor %}
+                                            <div class="form-text small">URL that will handle unsubscribe requests</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    {{ form.type(id="type") }}
     
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">

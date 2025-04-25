@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, DateTimeField, IntegerField, HiddenField, FileField, MultipleFileField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional, URL
 from models import User, UserRegistrationRequest
 
 class LoginForm(FlaskForm):
@@ -131,9 +131,19 @@ class EmailEditorForm(FlaskForm):
     name = StringField('Template Name', validators=[DataRequired(), Length(max=100)])
     subject = StringField('Email Subject', validators=[DataRequired(), Length(max=200)])
     content = HiddenField('Email Content', validators=[DataRequired()])
-    type = SelectField('Template Type', choices=[
-        ('click', 'Click Tracking'), 
-        ('open', 'Open Tracking'), 
-        ('optout', 'Opt-out Template')
-    ], validators=[DataRequired()])
+    
+    # Replace SelectField with individual checkboxes
+    has_click_tracking = BooleanField('Click Tracking')
+    has_open_tracking = BooleanField('Open Tracking')
+    has_optout = BooleanField('Unsubscribe Option')
+    
+    # Add URL fields for tracking and opt-out
+    click_tracking_url = StringField('Click Tracking URL', validators=[Optional(), URL()])
+    open_tracking_url = StringField('Open Tracking URL', validators=[Optional(), URL()])
+    optout_url = StringField('Unsubscribe URL', validators=[Optional(), URL()])
+    tracking_image_url = StringField('Tracking Pixel Image URL', validators=[Optional(), URL()])
+    
+    # Keep the type field for backward compatibility but make it hidden
+    type = HiddenField('Template Type')
+    
     submit = SubmitField('Save Template')
