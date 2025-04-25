@@ -723,7 +723,6 @@ def admin_create_user():
             is_admin=form.is_admin.data,
             is_active=True,  # User is active by default
             email_verified=True,  # Admin-created users are pre-verified
-            is_approved=True,  # Admin-created users are pre-approved
             created_at=datetime.utcnow()
         )
         
