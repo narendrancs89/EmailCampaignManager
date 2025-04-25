@@ -53,14 +53,36 @@ A comprehensive Flask-based email campaign management platform that enables user
    gunicorn --bind 0.0.0.0:5000 main:app
    ```
 
-### Database Migration/Restoration
+### Database Backup and Restoration
 
-To restore the database from a SQL dump:
+#### Backing Up Your Database
+
+To create a database backup:
 
 ```
-psql -U username -d database_name -f database_exports/schema_YYYYMMDD_HHMMSS.sql
-psql -U username -d database_name -f database_exports/full_dump_YYYYMMDD_HHMMSS.sql
+python backup_data.py
 ```
+
+This will create a set of JSON files in the `database_backups` directory with the current timestamp.
+
+#### Restoring Your Database
+
+To restore the database from the most recent backup:
+
+```
+python restore_data.py
+```
+
+To restore from a specific backup, provide the timestamp:
+
+```
+python restore_data.py 20250425_091409
+```
+
+**Important Notes on Restoration:**
+- All user passwords will be reset to a default value (`ChangeMe123!_username`)
+- SMTP server passwords will need to be manually updated after restoration
+- Relationships between tables will be preserved
 
 ## Default Credentials
 
@@ -72,11 +94,32 @@ psql -U username -d database_name -f database_exports/full_dump_YYYYMMDD_HHMMSS.
   - Username: testuser
   - Password: Test123!
 
+## Pushing to GitHub
+
+You can easily push your project to GitHub using the provided initialization script:
+
+```bash
+./init_git.sh https://github.com/yourusername/email-marketing-platform.git
+```
+
+The script will:
+1. Create a database backup
+2. Initialize a Git repository
+3. Set up your Git user information
+4. Add all files and make an initial commit
+5. Push to the GitHub repository you specified
+
+You will need to:
+- Create an empty GitHub repository first
+- Have Git installed
+- Provide your GitHub credentials when prompted
+
 ## Security Notes
 
 - Change default credentials immediately after setup
 - Store API keys securely and never commit them to version control
 - Enable HTTPS for production deployments
+- All sensitive information (API keys, passwords) is excluded from Git commits by the .gitignore file
 
 ## License
 

@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@example.com",
+    "created_at": "2025-04-25 05:13:15.540204",
+    "last_login": null,
+    "email_verified": true,
+    "is_active": true,
+    "is_admin": true,
+    "permissions": "{}"
+  },
+  {
+    "id": 2,
+    "username": "narendran ",
+    "email": "nnnarendran700@gmail.com",
+    "created_at": "2025-04-25 05:59:29.293204",
+    "last_login": null,
+    "email_verified": true,
+    "is_active": true,
+    "is_admin": false,
+    "permissions": "{\"can_manage_segments\": true, \"can_manage_templates\": true, \"can_manage_jobs\": true, \"can_manage_smtp\": false}"
+  },
+  {
+    "id": 3,
+    "username": "testuser",
+    "email": "test@example.com",
+    "created_at": "2025-04-25 06:14:58.841498",
+    "last_login": "2025-04-25 06:24:23.991853",
+    "email_verified": true,
+    "is_active": true,
+    "is_admin": false,
+    "permissions": "{\"can_manage_segments\": true, \"can_manage_templates\": true, \"can_manage_jobs\": true, \"can_manage_smtp\": true}"
+  }
+]
