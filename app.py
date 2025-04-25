@@ -61,9 +61,24 @@ def inject_now():
 with app.app_context():
     # Import models to ensure tables are created
     import models  # noqa: F401
+    from models import User
     
     # Create database tables if they don't exist
     db.create_all()
+    
+    # Create a default admin user if none exists
+    if not User.query.filter_by(is_admin=True).first():
+        admin_user = User(
+            username='admin',
+            email='admin@example.com',
+            is_admin=True,
+            email_verified=True,
+            is_active=True
+        )
+        admin_user.set_password('Admin123!')
+        db.session.add(admin_user)
+        db.session.commit()
+        print('Created default admin user: admin@example.com / Admin123!')
     
     # Import routes to register them with the app
     import routes  # noqa: F401
