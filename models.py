@@ -196,6 +196,12 @@ class ScheduledJob(db.Model):
     sending_completed_at = db.Column(db.DateTime, nullable=True)
     avg_sending_rate = db.Column(db.Float, default=0.0)  # emails per second
     
+    # Optimal send time fields
+    use_optimal_time = db.Column(db.Boolean, default=False)
+    optimal_time_window_start = db.Column(db.Integer, default=9)  # 9 AM
+    optimal_time_window_end = db.Column(db.Integer, default=17)   # 5 PM
+    optimal_day_preference = db.Column(db.String(50), default='weekday')  # weekday, weekend, any
+    
     def __repr__(self):
         return f'<ScheduledJob {self.name}>'
 
