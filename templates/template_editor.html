@@ -157,7 +157,7 @@
                 <h5 class="modal-title" id="testEmailModalLabel">Send Test Email</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="test-email-form" method="post" action="{{ url_for('send_test_email', template_id=template.id if template else 0) }}">
+            <form id="test-email-form" method="post" action="{{ url_for('send_test_email_route', template_id=template.id if template else 0) }}">
                 <div class="modal-body">
                     {{ test_email_form.hidden_tag() if test_email_form }}
                     <div class="mb-3">

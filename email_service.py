@@ -169,3 +169,74 @@ def add_click_tracking(content, job_id, contact_id):
             link['href'] = tracked_url
     
     return str(soup)
+
+def send_test_email(app, template_id, recipient_email, smtp_config_id):
+    """
+    Sends a test email using the specified template to the recipient
+    
+    Args:
+        app: Flask application instance
+        template_id: ID of the template to use
+        recipient_email: Email address to send the test to
+        smtp_config_id: ID of the SMTP configuration to use
+        
+    Returns:
+        tuple: (success, message)
+    """
+    try:
+        # Get the template and SMTP configuration
+        template = EmailTemplate.query.get(template_id)
+        smtp_config = SMTPConfig.query.get(smtp_config_id)
+        
+        if not template or not smtp_config:
+            return False, "Template or SMTP configuration not found"
+        
+        # Update mail settings for this test
+        update_mail_settings(app, smtp_config)
+        
+        # Create sample data for personalization
+        sample_contact = {
+            'name': 'Sample Recipient',
+            'email': recipient_email
+        }
+        
+        # Personalize the content
+        content = template.content
+        content = content.replace('{{name}}', sample_contact['name'])
+        content = content.replace('{{email}}', sample_contact['email'])
+        
+        # Create test tracking IDs (not recorded in database)
+        test_job_id = 0
+        test_contact_id = 0
+        
+        # Add tracking for preview purposes if enabled
+        if template.has_open_tracking:
+            content = add_open_tracking(content, test_job_id, test_contact_id)
+        
+        if template.has_click_tracking:
+            content = add_click_tracking(content, test_job_id, test_contact_id)
+            
+        # Set the sender
+        sender_email = smtp_config.from_email
+        sender_name = smtp_config.from_name
+        sender = f"{sender_name} <{sender_email}>" if sender_name else sender_email
+        
+        # Add test label to subject
+        test_subject = f"[TEST] {template.subject}"
+        
+        # Create and send the message
+        msg = Message(
+            subject=test_subject,
+            recipients=[recipient_email],
+            html=content,
+            sender=sender
+        )
+        
+        mail.send(msg)
+        
+        return True, f"Test email sent successfully to {recipient_email}"
+        
+    except Exception as e:
+        logging.error(f"Error sending test email: {str(e)}")
+        logging.error(traceback.format_exc())
+        return False, f"Error sending test email: {str(e)}"

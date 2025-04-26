@@ -155,6 +155,22 @@ class ScheduleJobForm(FlaskForm):
                            description='Override the default sender email in SMTP configuration')
     from_name = StringField('From Name', validators=[Optional(), Length(max=120)],
                          description='Override the default sender name in SMTP configuration')
+    
+    # Optimal send time fields
+    use_optimal_time = BooleanField('Use Smart Scheduling', 
+                                   description='Automatically adjust sending time to maximize engagement')
+    optimal_time_window_start = IntegerField('Earliest Hour (24h)', default=9, validators=[Optional()],
+                                          description='Earliest hour to send (24-hour format, e.g. 9 for 9 AM)')
+    optimal_time_window_end = IntegerField('Latest Hour (24h)', default=17, validators=[Optional()],
+                                        description='Latest hour to send (24-hour format, e.g. 17 for 5 PM)')
+    optimal_day_preference = SelectField('Day Preference',
+                               choices=[
+                                   ('any', 'Any Day'),
+                                   ('weekday', 'Weekdays Only'),
+                                   ('weekend', 'Weekends Only')
+                               ], default='weekday', validators=[Optional()],
+                               description='Preferred days for sending emails')
+    
     submit = SubmitField('Schedule Job')
 
 class SMTPConfigForm(FlaskForm):

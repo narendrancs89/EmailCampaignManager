@@ -10,12 +10,12 @@ from app import app, db, mail
 from models import User, EmailSegment, Contact, EmailTemplate, ScheduledJob, SMTPConfig, UserSession, UserRegistrationRequest, AdminEmailList, AdminEmailContact, EmailOpen, EmailClick
 from forms import (
     LoginForm, RegistrationForm, SegmentForm, ContactForm, ContactImportForm,
-    TemplateForm, ScheduleJobForm, SMTPConfigForm, EmailEditorForm,
+    TemplateForm, ScheduleJobForm, SMTPConfigForm, EmailEditorForm, TestEmailForm,
     EmailVerificationForm, ResetPasswordRequestForm, ResetPasswordForm,
     AdminLoginForm, UserApprovalForm, UserPermissionsForm, AdminUserCreationForm,
     AdminEmailListForm, AdminEmailContactForm, AdminContactImportForm
 )
-from email_service import update_mail_settings
+from email_service import update_mail_settings, send_test_email
 from flask_mail import Message
 import json
 import csv
@@ -951,7 +951,12 @@ def new_template():
         flash('Template created successfully!', 'success')
         return redirect(url_for('templates'))
     
-    return render_template('email_editor.html', title='New Template', form=form)
+    # Create a test email form and get SMTP configs for the modal (not needed for new template but for consistency)
+    test_email_form = TestEmailForm()
+    smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
+    
+    return render_template('template_editor.html', title='New Template', form=form, 
+                         test_email_form=test_email_form, smtp_configs=smtp_configs)
 
 @app.route('/templates/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -964,6 +969,10 @@ def edit_template(id):
         return redirect(url_for('templates'))
     
     form = EmailEditorForm()
+    test_email_form = TestEmailForm()
+    
+    # Get available SMTP configs for test email
+    smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
     
     if form.validate_on_submit():
         template.name = form.name.data
@@ -990,7 +999,43 @@ def edit_template(id):
         form.has_open_tracking.data = template.has_open_tracking
         form.has_optout.data = template.has_optout
     
-    return render_template('email_editor.html', title='Edit Template', form=form, template=template)
+    return render_template('template_editor.html', title='Edit Template', form=form, 
+                          template=template, test_email_form=test_email_form, 
+                          smtp_configs=smtp_configs)
+
+@app.route('/templates/<int:template_id>/send-test', methods=['POST'])
+@login_required
+def send_test_email_route(template_id):
+    template = EmailTemplate.query.get_or_404(template_id)
+    
+    # Check if the template belongs to the current user
+    if template.user_id != current_user.id:
+        flash('You do not have permission to test this template.', 'danger')
+        return redirect(url_for('templates'))
+    
+    # Get form data
+    recipient_email = request.form.get('recipient_email')
+    smtp_config_id = request.form.get('smtp_config_id')
+    
+    if not recipient_email or not smtp_config_id:
+        flash('Missing required fields for sending test email.', 'danger')
+        return redirect(url_for('edit_template', id=template_id))
+    
+    # Validate SMTP config belongs to user
+    smtp_config = SMTPConfig.query.get(smtp_config_id)
+    if not smtp_config or smtp_config.user_id != current_user.id:
+        flash('Invalid SMTP configuration.', 'danger')
+        return redirect(url_for('edit_template', id=template_id))
+    
+    # Send test email
+    success, message = send_test_email(app, template_id, recipient_email, smtp_config_id)
+    
+    if success:
+        flash(message, 'success')
+    else:
+        flash(f'Failed to send test email: {message}', 'danger')
+    
+    return redirect(url_for('edit_template', id=template_id))
 
 @app.route('/templates/<int:id>/save-as', methods=['GET', 'POST'])
 @login_required
@@ -1030,7 +1075,13 @@ def save_template_as(id):
         form.has_open_tracking.data = original_template.has_open_tracking
         form.has_optout.data = original_template.has_optout
     
-    return render_template('email_editor.html', title='Save Template As', form=form, save_as=True, original_template=original_template)
+    # Create a test email form and get SMTP configs for the modal
+    test_email_form = TestEmailForm()
+    smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
+    
+    return render_template('template_editor.html', title='Save Template As', form=form, save_as=True, 
+                         original_template=original_template, test_email_form=test_email_form,
+                         smtp_configs=smtp_configs)
 
 @app.route('/templates/<int:id>/delete', methods=['POST'])
 @login_required
