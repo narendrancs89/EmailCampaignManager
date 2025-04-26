@@ -201,6 +201,7 @@ class ScheduledJob(db.Model):
     optimal_time_window_start = db.Column(db.Integer, default=9)  # 9 AM
     optimal_time_window_end = db.Column(db.Integer, default=17)   # 5 PM
     optimal_day_preference = db.Column(db.String(50), default='weekday')  # weekday, weekend, any
+    actual_send_time = db.Column(db.DateTime, nullable=True)  # The actual optimized time when emails will be sent
     
     def __repr__(self):
         return f'<ScheduledJob {self.name}>'
