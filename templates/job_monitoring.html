@@ -33,6 +33,24 @@
                     <div class="mb-3">
                         <strong>Scheduled Time:</strong>
                         <div>{{ job.scheduled_time.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                        {% if job.use_optimal_time %}
+                        <div class="mt-2">
+                            <span class="badge bg-info">Smart Scheduling</span>
+                            <div class="small mt-1">
+                                <div><i class="fas fa-clock me-1"></i>Window: {{ job.optimal_time_window_start }}:00 - {{ job.optimal_time_window_end }}:00</div>
+                                <div><i class="fas fa-calendar me-1"></i>Preference: {{ job.optimal_day_preference.capitalize() }}</div>
+                                {% if job.actual_send_time %}
+                                <div class="text-success mt-1">
+                                    <i class="fas fa-check-circle me-1"></i>Optimized to: {{ job.actual_send_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                                </div>
+                                {% else %}
+                                <div class="text-muted mt-1">
+                                    <i class="fas fa-spinner me-1"></i>Will be optimized when scheduled
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="mb-3">
                         <strong>Created:</strong>

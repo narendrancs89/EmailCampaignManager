@@ -35,9 +35,9 @@ def init_scheduler(app):
     # Start the scheduler
     scheduler.start()
     
-    # Temporarily commented out to avoid issues with missing columns
-    # with app.app_context():
-    #    load_jobs_from_db(app)
+    # Load existing jobs from database
+    with app.app_context():
+        load_jobs_from_db(app)
     
     # Add a job to check for new scheduled jobs every minute
     scheduler.add_job(

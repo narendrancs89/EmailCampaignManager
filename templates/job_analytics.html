@@ -65,6 +65,13 @@
                                             Time window: {{ job.optimal_time_window_start }}:00 - {{ job.optimal_time_window_end }}:00
                                             <br>
                                             Day preference: {{ job.optimal_day_preference.capitalize() }}
+                                            {% if job.actual_send_time %}
+                                            <br>
+                                            <span class="text-success">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Optimized send time: {{ job.actual_send_time.strftime('%Y-%m-%d %H:%M') }}
+                                            </span>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
