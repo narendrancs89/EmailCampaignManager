@@ -6,6 +6,7 @@ import time
 from bs4 import BeautifulSoup
 import uuid
 import traceback
+from datetime import datetime
 
 def update_mail_settings(app, smtp_config):
     """Update Flask-Mail settings based on SMTP configuration"""

@@ -190,3 +190,10 @@ class EmailEditorForm(FlaskForm):
     type = HiddenField('Template Type')
     
     submit = SubmitField('Save Template')
+
+class TestEmailForm(FlaskForm):
+    recipient_email = StringField('Email', validators=[DataRequired(), Email()], 
+                                 description='Enter an email address to send a test version of this template')
+    smtp_config_id = SelectField('SMTP Configuration', coerce=int, validators=[DataRequired()],
+                               description='Select the SMTP configuration to use for sending the test')
+    submit = SubmitField('Send Test Email')
