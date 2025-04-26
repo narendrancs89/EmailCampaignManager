@@ -33,7 +33,14 @@
                 {% for job in jobs %}
                 <tr>
                     <td>{{ job.name }}</td>
-                    <td>{{ job.scheduled_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {{ job.scheduled_time.strftime('%Y-%m-%d %H:%M') }}
+                        {% if job.use_optimal_time %}
+                        <span class="badge bg-info ms-1" data-bs-toggle="tooltip" title="Smart Scheduling Enabled">
+                            <i class="fas fa-magic"></i>
+                        </span>
+                        {% endif %}
+                    </td>
                     <td>
                         <span class="badge badge-{{ job.status }}">
                             {{ job.status.capitalize() }}
@@ -103,6 +110,12 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
     // Add confirmation for cancel actions
     const cancelButtons = document.querySelectorAll('.cancel-confirm');
     if (cancelButtons.length > 0) {

@@ -1312,7 +1312,12 @@ def new_job():
             smtp_config_id=form.smtp_config_id.data,
             from_email=form.from_email.data if form.from_email.data else None,
             from_name=form.from_name.data if form.from_name.data else None,
-            total_emails=segment.emails.count()
+            total_emails=segment.emails.count(),
+            # Optimal send time settings
+            use_optimal_time=form.use_optimal_time.data,
+            optimal_time_window_start=form.optimal_time_window_start.data,
+            optimal_time_window_end=form.optimal_time_window_end.data,
+            optimal_day_preference=form.optimal_day_preference.data
         )
         db.session.add(job)
         db.session.commit()

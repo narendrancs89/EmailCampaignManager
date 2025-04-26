@@ -56,6 +56,19 @@
                                     <th>Last Updated</th>
                                     <td>{{ job.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
                                 </tr>
+                                {% if job.use_optimal_time %}
+                                <tr>
+                                    <th>Smart Scheduling</th>
+                                    <td>
+                                        <span class="badge bg-info">Enabled</span>
+                                        <div class="mt-1 small">
+                                            Time window: {{ job.optimal_time_window_start }}:00 - {{ job.optimal_time_window_end }}:00
+                                            <br>
+                                            Day preference: {{ job.optimal_day_preference.capitalize() }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>

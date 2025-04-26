@@ -75,6 +75,51 @@
                     <div class="card mt-3 mb-4">
                         <div class="card-header bg-light">
                             <h6 class="mb-0">
+                                <i class="fas fa-clock me-2"></i>Smart Scheduling
+                                <span class="small text-muted">(Optional - optimize delivery timing)</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.use_optimal_time(class="form-check-input", id="use_optimal_time") }}
+                                    <label class="form-check-label" for="use_optimal_time">
+                                        {{ form.use_optimal_time.label }}
+                                    </label>
+                                    <div class="form-text">{{ form.use_optimal_time.description }}</div>
+                                </div>
+                            </div>
+                            
+                            <div id="optimal_time_options" class="row mt-3" style="display: none;">
+                                <div class="col-md-4">
+                                    <label for="optimal_time_window_start" class="form-label">{{ form.optimal_time_window_start.label }}</label>
+                                    {{ form.optimal_time_window_start(class="form-control", min="0", max="23") }}
+                                    <div class="form-text">{{ form.optimal_time_window_start.description }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="optimal_time_window_end" class="form-label">{{ form.optimal_time_window_end.label }}</label>
+                                    {{ form.optimal_time_window_end(class="form-control", min="0", max="23") }}
+                                    <div class="form-text">{{ form.optimal_time_window_end.description }}</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="optimal_day_preference" class="form-label">{{ form.optimal_day_preference.label }}</label>
+                                    {{ form.optimal_day_preference(class="form-control") }}
+                                    <div class="form-text">{{ form.optimal_day_preference.description }}</div>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-lightbulb me-2"></i> 
+                                        <strong>Smart Scheduling</strong> will optimize delivery time within these parameters to maximize engagement.
+                                        The scheduled time you set above will be used as the earliest possible send time.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3 mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
                                 <i class="fas fa-envelope me-2"></i>Custom Sender Information
                                 <span class="small text-muted">(Optional - overrides SMTP defaults)</span>
                             </h6>
@@ -127,6 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const smtpSelector = document.getElementById('smtp_config_selector');
     const fromEmailField = document.getElementById('from_email');
     const fromNameField = document.getElementById('from_name');
+    const useOptimalTimeSwitch = document.getElementById('use_optimal_time');
+    const optimalTimeOptions = document.getElementById('optimal_time_options');
     
     // Store SMTP configs data
     const smtpConfigs = {
@@ -152,6 +199,22 @@ document.addEventListener('DOMContentLoaded', function() {
     if (smtpSelector.value) {
         const event = new Event('change');
         smtpSelector.dispatchEvent(event);
+    }
+    
+    // Smart scheduling toggle
+    if (useOptimalTimeSwitch) {
+        useOptimalTimeSwitch.addEventListener('change', function() {
+            if (this.checked) {
+                optimalTimeOptions.style.display = 'flex';
+            } else {
+                optimalTimeOptions.style.display = 'none';
+            }
+        });
+        
+        // Initialize on page load
+        if (useOptimalTimeSwitch.checked) {
+            optimalTimeOptions.style.display = 'flex';
+        }
     }
     
     // Add a "Use SMTP Defaults" button
