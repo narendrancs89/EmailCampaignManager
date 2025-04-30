@@ -170,7 +170,7 @@ def add_click_tracking(content, job_id, contact_id):
     
     return str(soup)
 
-def send_test_email(app, template_id, recipient_email, smtp_config_id):
+def send_test_email(app, template_id, recipient_email, smtp_config_id, custom_smtp_config=None):
     """
     Sends a test email using the specified template to the recipient
     
@@ -179,6 +179,7 @@ def send_test_email(app, template_id, recipient_email, smtp_config_id):
         template_id: ID of the template to use
         recipient_email: Email address to send the test to
         smtp_config_id: ID of the SMTP configuration to use
+        custom_smtp_config: Optional custom SMTP configuration object to use instead of fetching from database
         
     Returns:
         tuple: (success, message)
@@ -186,13 +187,19 @@ def send_test_email(app, template_id, recipient_email, smtp_config_id):
     try:
         # Get the template and SMTP configuration
         template = EmailTemplate.query.get(template_id)
-        smtp_config = SMTPConfig.query.get(smtp_config_id)
+        
+        # Use provided custom config or fetch from database
+        if custom_smtp_config:
+            smtp_config = custom_smtp_config
+        else:
+            smtp_config = SMTPConfig.query.get(smtp_config_id)
         
         if not template or not smtp_config:
             return False, "Template or SMTP configuration not found"
         
         # Update mail settings for this test
-        update_mail_settings(app, smtp_config)
+        if not custom_smtp_config:  # Only update if we're not using a custom config that's already been applied
+            update_mail_settings(app, smtp_config)
         
         # Create sample data for personalization
         sample_contact = {

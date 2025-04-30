@@ -1041,6 +1041,74 @@ def send_test_email_route(template_id):
     
     return redirect(url_for('edit_template', id=template_id))
 
+@app.route('/jobs/send-test-email', methods=['POST'])
+@login_required
+def send_job_test_email():
+    """Send test email from job creation form with the selected template and SMTP config"""
+    # Get form data
+    template_id = request.form.get('template_id')
+    smtp_config_id = request.form.get('smtp_config_id')
+    recipient_email = request.form.get('recipient_email')
+    from_email = request.form.get('from_email')
+    from_name = request.form.get('from_name')
+    
+    if not template_id or not smtp_config_id or not recipient_email:
+        flash('Missing required fields for sending test email.', 'danger')
+        return redirect(url_for('new_job'))
+    
+    # Validate template belongs to user
+    template = EmailTemplate.query.get_or_404(template_id)
+    if template.user_id != current_user.id:
+        flash('Invalid template selected.', 'danger')
+        return redirect(url_for('new_job'))
+    
+    # Validate SMTP config belongs to user
+    smtp_config = SMTPConfig.query.get(smtp_config_id)
+    if not smtp_config or smtp_config.user_id != current_user.id:
+        flash('Invalid SMTP configuration.', 'danger')
+        return redirect(url_for('new_job'))
+    
+    # Send test email with custom sender info if provided
+    try:
+        # Create temporary SMTP config with custom sender if provided
+        modified_config = None
+        if from_email or from_name:
+            # Create a copy of the SMTP config with the custom sender info
+            modified_config = SMTPConfig(
+                id=smtp_config.id,
+                name=smtp_config.name,
+                host=smtp_config.host,
+                port=smtp_config.port,
+                username=smtp_config.username,
+                password=smtp_config.password,
+                use_tls=smtp_config.use_tls,
+                use_ssl=smtp_config.use_ssl,
+                from_email=from_email if from_email else smtp_config.from_email,
+                from_name=from_name if from_name else smtp_config.from_name,
+                user_id=smtp_config.user_id
+            )
+            # Update mail settings with the modified config
+            update_mail_settings(app, modified_config)
+        
+        # Send the test email
+        success, message = send_test_email(
+            app, 
+            template_id, 
+            recipient_email, 
+            smtp_config_id,
+            custom_smtp_config=modified_config
+        )
+        
+        if success:
+            flash(message, 'success')
+        else:
+            flash(f'Failed to send test email: {message}', 'danger')
+        
+    except Exception as e:
+        flash(f'Error sending test email: {str(e)}', 'danger')
+    
+    return redirect(url_for('new_job'))
+
 @app.route('/templates/<int:id>/save-as', methods=['GET', 'POST'])
 @login_required
 def save_template_as(id):
@@ -1294,17 +1362,16 @@ def new_job():
     form.segment_id.choices = [
         (s.id, s.name) for s in EmailSegment.query.filter_by(user_id=current_user.id).all()
     ]
-    form.smtp_config_id.choices = [
-        (c.id, c.name) for c in SMTPConfig.query.filter_by(user_id=current_user.id).all()
-    ]
+    
+    # Get SMTP configs
+    smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
+    form.smtp_config_id.choices = [(c.id, c.name) for c in smtp_configs]
     
     if form.validate_on_submit():
         # Verify that selected segment has contacts
         segment = EmailSegment.query.get(form.segment_id.data)
         if segment.emails.count() == 0:
             flash('The selected segment has no contacts. Please add contacts before scheduling a job.', 'danger')
-            # Get SMTP configs for the JavaScript dropdown
-            smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
             return render_template('job_form.html', title='New Email Job', form=form, smtp_configs=smtp_configs)
         
         job = ScheduledJob(
@@ -1327,9 +1394,6 @@ def new_job():
         db.session.commit()
         flash('Email job scheduled successfully!', 'success')
         return redirect(url_for('jobs'))
-    
-    # Get SMTP configs for the JavaScript dropdown
-    smtp_configs = SMTPConfig.query.filter_by(user_id=current_user.id).all()
     return render_template('job_form.html', title='New Email Job', form=form, smtp_configs=smtp_configs)
 
 @app.route('/job/<int:job_id>/monitoring')
