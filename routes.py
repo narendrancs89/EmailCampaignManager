@@ -623,11 +623,15 @@ def admin_users():
         return redirect(url_for('dashboard'))
     
     # Get all active users
-    users = User.query.filter_by(is_active=True).order_by(User.username).all()
+    active_users = User.query.filter_by(is_active=True).order_by(User.username).all()
+    
+    # Get inactive users
+    inactive_users = User.query.filter_by(is_active=False).order_by(User.username).all()
     
     return render_template('admin_users.html',
                            title='User Management',
-                           users=users)
+                           active_users=active_users,
+                           inactive_users=inactive_users)
 
 @app.route('/admin/users/<int:id>/permissions', methods=['GET', 'POST'])
 @login_required

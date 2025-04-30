@@ -155,7 +155,12 @@
                         <a href="{{ url_for('jobs') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-1"></i> Back to Jobs
                         </a>
-                        {{ form.submit(class="btn btn-primary") }}
+                        <div>
+                            <button type="button" class="btn btn-outline-info me-2" data-bs-toggle="modal" data-bs-target="#testEmailModal">
+                                <i class="fas fa-paper-plane me-1"></i> Send Test Email
+                            </button>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
                     </div>
                 </form>
             </div>
