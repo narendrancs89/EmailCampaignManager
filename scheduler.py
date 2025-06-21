@@ -60,8 +60,7 @@ def load_jobs_from_db(app):
             # Get jobs that are scheduled to run in the future
             current_time = datetime.utcnow()
             scheduled_jobs = ScheduledJob.query.filter(
-                ScheduledJob.status == 'scheduled'
-            ).filter(
+                ScheduledJob.status == 'scheduled',
                 ScheduledJob.scheduled_time > current_time
             ).all()
             
@@ -79,8 +78,7 @@ def check_for_new_jobs(app):
             # Get jobs that are scheduled to run in the future and not in the scheduler
             current_time = datetime.utcnow()
             scheduled_jobs = ScheduledJob.query.filter(
-                ScheduledJob.status == 'scheduled'
-            ).filter(
+                ScheduledJob.status == 'scheduled',
                 ScheduledJob.scheduled_time > current_time
             ).all()
             
