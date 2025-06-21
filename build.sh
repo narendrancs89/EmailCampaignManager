@@ -40,3 +40,6 @@ if os.environ.get('DATABASE_URL'):
 
 echo "Running production database initialization..."
 python deployment_init.py
+
+echo "Verifying deployment readiness..."
+python final_deployment_test.py

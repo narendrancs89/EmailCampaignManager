@@ -58,6 +58,20 @@ def ensure_production_database():
         
         with app.app_context():
             print("Creating database tables...")
+            
+            # Configure SQLAlchemy for PostgreSQL deployment
+            app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+                "pool_recycle": 300,
+                "pool_pre_ping": True,
+                "pool_size": 10,
+                "max_overflow": 20,
+                "echo": False,  # Disable SQL logging in production
+                "connect_args": {
+                    "sslmode": "require",
+                    "options": "-c timezone=UTC"
+                }
+            }
+            
             db.create_all()
             print("✓ Database tables created")
             

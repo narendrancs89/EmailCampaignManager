@@ -61,8 +61,9 @@ def test_all_components():
             print(f"✓ Status query syntax verified - {sum(status_counts.values())} total status queries")
             
             # Test login query (fixed)
+            from sqlalchemy import or_
             admin_user = User.query.filter(
-                db.or_(User.username == 'admin', User.email == 'admin@example.com')
+                or_(User.username == 'admin', User.email == 'admin@example.com')
             ).first()
             print(f"✓ Login query syntax verified - admin user: {admin_user.username if admin_user else 'not found'}")
             

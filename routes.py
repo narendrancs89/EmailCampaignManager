@@ -46,9 +46,10 @@ def login():
     if form.validate_on_submit():
         logging.info(f"Login form submitted for username: {form.username.data}")
         # Allow login with either username or email
+        from sqlalchemy import or_
         user = User.query.filter(
-            db.or_(User.username == form.username.data, 
-                   User.email == form.username.data)
+            or_(User.username == form.username.data, 
+                User.email == form.username.data)
         ).first()
         
         if user is None:
