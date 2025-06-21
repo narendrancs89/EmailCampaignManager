@@ -73,16 +73,21 @@ def login():
         logging.info(f"User {form.username.data} authenticated successfully")
         
         # Record session info
-        user_session = UserSession(
-            user_id=user.id,
-            ip_address=request.remote_addr,
-            user_agent=request.user_agent.string
-        )
-        db.session.add(user_session)
-        db.session.commit()
-        
-        # Store session ID in user session
-        session['session_id'] = user_session.id
+        try:
+            user_session = UserSession(
+                user_id=user.id,
+                ip_address=request.remote_addr,
+                user_agent=request.user_agent.string
+            )
+            db.session.add(user_session)
+            db.session.commit()
+            
+            # Store session ID in user session
+            session['session_id'] = user_session.id
+        except Exception as e:
+            logging.warning(f"Could not create user session: {e}")
+            # Continue with login even if session tracking fails
+            pass
         
         login_user(user, remember=form.remember_me.data)
         
