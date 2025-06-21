@@ -1,0 +1,189 @@
+2025-06-21T16:55:10.756454692Z 
+2025-06-21T16:55:10.756458492Z This will download and install the latest version of Poetry,
+2025-06-21T16:55:10.756463832Z a dependency and package manager for Python.
+2025-06-21T16:55:10.756467453Z 
+2025-06-21T16:55:10.756472583Z It will add the `poetry` command to Poetry's bin directory, located at:
+2025-06-21T16:55:10.756476003Z 
+2025-06-21T16:55:10.756479993Z /opt/render/project/poetry/bin
+2025-06-21T16:55:10.756483553Z 
+2025-06-21T16:55:10.756488553Z You can uninstall at any time by executing this script with the --uninstall option,
+2025-06-21T16:55:10.756492204Z and these changes will be reverted.
+2025-06-21T16:55:10.756495613Z 
+2025-06-21T16:55:10.756499134Z Installing Poetry (1.7.1)
+2025-06-21T16:55:10.756502874Z Installing Poetry (1.7.1): Creating environment
+2025-06-21T16:55:10.756506594Z Installing Poetry (1.7.1): Installing Poetry
+2025-06-21T16:55:10.756510484Z Installing Poetry (1.7.1): Creating script
+2025-06-21T16:55:10.756514134Z Installing Poetry (1.7.1): Done
+2025-06-21T16:55:10.756517494Z 
+2025-06-21T16:55:10.756522154Z Poetry (1.7.1) is installed now. Great!
+2025-06-21T16:55:10.756525614Z 
+2025-06-21T16:55:10.756529534Z You can test that everything is set up by executing:
+2025-06-21T16:55:10.756532975Z 
+2025-06-21T16:55:10.756536525Z `poetry --version`
+2025-06-21T16:55:10.756539895Z 
+2025-06-21T16:55:10.797807945Z ==> Installing UV version 0.7.12...
+2025-06-21T16:55:12.420403628Z ==> Using UV version 0.7.12 (default)
+2025-06-21T16:55:12.420430219Z ==> Docs on specifying a UV version: [https://render.com/docs/uv-version](https://render.com/docs/uv-version)
+2025-06-21T16:55:12.437639469Z ==> Running build command 'pip install -r render_requirements.txt'...
+2025-06-21T16:55:14.110638777Z Collecting email-validator>=2.2.0 (from -r render_requirements.txt (line 1))
+2025-06-21T16:55:14.184661359Z   Downloading email_validator-2.2.0-py3-none-any.whl.metadata (25 kB)
+2025-06-21T16:55:15.327896665Z Collecting flask-login>=0.6.3 (from -r render_requirements.txt (line 2))
+2025-06-21T16:55:15.452612991Z   Downloading Flask_Login-0.6.3-py3-none-any.whl.metadata (5.8 kB)
+2025-06-21T16:55:16.445823046Z Collecting flask>=3.1.0 (from -r render_requirements.txt (line 3))
+2025-06-21T16:55:16.457780443Z   Downloading flask-3.1.1-py3-none-any.whl.metadata (3.0 kB)
+2025-06-21T16:55:17.142289193Z Collecting flask-sqlalchemy>=3.1.1 (from -r render_requirements.txt (line 4))
+2025-06-21T16:55:17.154152828Z   Downloading flask_sqlalchemy-3.1.1-py3-none-any.whl.metadata (3.4 kB)
+2025-06-21T16:55:17.898642432Z Collecting gunicorn>=23.0.0 (from -r render_requirements.txt (line 5))
+2025-06-21T16:55:17.910661481Z   Downloading gunicorn-23.0.0-py3-none-any.whl.metadata (4.4 kB)
+2025-06-21T16:55:18.501960931Z Collecting psycopg2-binary>=2.9.10 (from -r render_requirements.txt (line 6))
+2025-06-21T16:55:18.514836536Z   Downloading psycopg2_binary-2.9.10-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+2025-06-21T16:55:19.734994557Z Collecting flask-wtf>=1.2.2 (from -r render_requirements.txt (line 7))
+2025-06-21T16:55:19.747421199Z   Downloading flask_wtf-1.2.2-py3-none-any.whl.metadata (3.4 kB)
+2025-06-21T16:55:20.441646951Z Collecting beautifulsoup4>=4.13.4 (from -r render_requirements.txt (line 8))
+2025-06-21T16:55:20.45399563Z   Downloading beautifulsoup4-4.13.4-py3-none-any.whl.metadata (3.8 kB)
+2025-06-21T16:55:21.342723156Z Collecting flask-mail>=0.10.0 (from -r render_requirements.txt (line 9))
+2025-06-21T16:55:21.35523811Z   Downloading flask_mail-0.10.0-py3-none-any.whl.metadata (2.1 kB)
+2025-06-21T16:55:22.706995237Z Collecting apscheduler>=3.11.0 (from -r render_requirements.txt (line 10))
+2025-06-21T16:55:22.720199151Z   Downloading APScheduler-3.11.0-py3-none-any.whl.metadata (6.4 kB)
+2025-06-21T16:55:23.819635363Z Collecting sendgrid>=6.11.0 (from -r render_requirements.txt (line 11))
+2025-06-21T16:55:23.904042336Z   Downloading sendgrid-6.12.4-py3-none-any.whl.metadata (12 kB)
+2025-06-21T16:55:24.47622866Z Collecting requests>=2.32.3 (from -r render_requirements.txt (line 12))
+2025-06-21T16:55:24.482239825Z   Using cached requests-2.32.4-py3-none-any.whl.metadata (4.9 kB)
+2025-06-21T16:55:25.281468019Z Collecting sqlalchemy>=2.0.40 (from -r render_requirements.txt (line 13))
+2025-06-21T16:55:25.301891753Z   Downloading sqlalchemy-2.0.41-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.6 kB)
+2025-06-21T16:55:26.018760473Z Collecting werkzeug>=3.1.3 (from -r render_requirements.txt (line 14))
+2025-06-21T16:55:26.135223269Z   Downloading werkzeug-3.1.3-py3-none-any.whl.metadata (3.7 kB)
+2025-06-21T16:55:26.804912207Z Collecting wtforms>=3.2.1 (from -r render_requirements.txt (line 15))
+2025-06-21T16:55:26.816682879Z   Downloading wtforms-3.2.1-py3-none-any.whl.metadata (5.3 kB)
+2025-06-21T16:55:27.019894906Z Collecting dnspython>=2.0.0 (from email-validator>=2.2.0->-r render_requirements.txt (line 1))
+2025-06-21T16:55:27.031898035Z   Downloading dnspython-2.7.0-py3-none-any.whl.metadata (5.8 kB)
+2025-06-21T16:55:27.083857196Z Collecting idna>=2.0.0 (from email-validator>=2.2.0->-r render_requirements.txt (line 1))
+2025-06-21T16:55:27.086327527Z   Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+2025-06-21T16:55:27.134062895Z Collecting blinker>=1.9.0 (from flask>=3.1.0->-r render_requirements.txt (line 3))
+2025-06-21T16:55:27.146037513Z   Downloading blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+2025-06-21T16:55:27.199334933Z Collecting click>=8.1.3 (from flask>=3.1.0->-r render_requirements.txt (line 3))
+2025-06-21T16:55:27.21195854Z   Downloading click-8.2.1-py3-none-any.whl.metadata (2.5 kB)
+2025-06-21T16:55:27.254708762Z Collecting itsdangerous>=2.2.0 (from flask>=3.1.0->-r render_requirements.txt (line 3))
+2025-06-21T16:55:27.273228561Z   Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+2025-06-21T16:55:27.326696855Z Collecting jinja2>=3.1.2 (from flask>=3.1.0->-r render_requirements.txt (line 3))
+2025-06-21T16:55:27.338795797Z   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+2025-06-21T16:55:27.427167026Z Collecting markupsafe>=2.1.1 (from flask>=3.1.0->-r render_requirements.txt (line 3))
+2025-06-21T16:55:27.439386881Z   Downloading MarkupSafe-3.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+2025-06-21T16:55:27.516589595Z Collecting packaging (from gunicorn>=23.0.0->-r render_requirements.txt (line 5))
+2025-06-21T16:55:27.518541332Z   Using cached packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+2025-06-21T16:55:27.559981987Z Collecting soupsieve>1.2 (from beautifulsoup4>=4.13.4->-r render_requirements.txt (line 8))
+2025-06-21T16:55:27.575334993Z   Downloading soupsieve-2.7-py3-none-any.whl.metadata (4.6 kB)
+2025-06-21T16:55:27.616900211Z Collecting typing-extensions>=4.0.0 (from beautifulsoup4>=4.13.4->-r render_requirements.txt (line 8))
+2025-06-21T16:55:27.628830818Z   Downloading typing_extensions-4.14.0-py3-none-any.whl.metadata (3.0 kB)
+2025-06-21T16:55:27.693402495Z Collecting tzlocal>=3.0 (from apscheduler>=3.11.0->-r render_requirements.txt (line 10))
+2025-06-21T16:55:27.705047584Z   Downloading tzlocal-5.3.1-py3-none-any.whl.metadata (7.6 kB)
+2025-06-21T16:55:27.752815893Z Collecting python-http-client>=3.2.1 (from sendgrid>=6.11.0->-r render_requirements.txt (line 11))
+2025-06-21T16:55:27.764925545Z   Downloading python_http_client-3.3.7-py3-none-any.whl.metadata (6.9 kB)
+2025-06-21T16:55:27.884175391Z Collecting ecdsa<1,>=0.19.1 (from sendgrid>=6.11.0->-r render_requirements.txt (line 11))
+2025-06-21T16:55:27.897609732Z   Downloading ecdsa-0.19.1-py2.py3-none-any.whl.metadata (29 kB)
+2025-06-21T16:55:28.14590968Z Collecting charset_normalizer<4,>=2 (from requests>=2.32.3->-r render_requirements.txt (line 12))
+2025-06-21T16:55:28.149224606Z   Using cached charset_normalizer-3.4.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+2025-06-21T16:55:28.235492004Z Collecting urllib3<3,>=1.21.1 (from requests>=2.32.3->-r render_requirements.txt (line 12))
+2025-06-21T16:55:28.235558526Z   Using cached urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+2025-06-21T16:55:28.296510178Z Collecting certifi>=2017.4.17 (from requests>=2.32.3->-r render_requirements.txt (line 12))
+2025-06-21T16:55:28.297471346Z   Using cached certifi-2025.6.15-py3-none-any.whl.metadata (2.4 kB)
+2025-06-21T16:55:28.633463433Z Collecting greenlet>=1 (from sqlalchemy>=2.0.40->-r render_requirements.txt (line 13))
+2025-06-21T16:55:28.645575266Z   Downloading greenlet-3.2.3-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (4.1 kB)
+2025-06-21T16:55:28.742864994Z Collecting six>=1.9.0 (from ecdsa<1,>=0.19.1->sendgrid>=6.11.0->-r render_requirements.txt (line 11))
+2025-06-21T16:55:28.757848869Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+2025-06-21T16:55:28.920700103Z Downloading email_validator-2.2.0-py3-none-any.whl (33 kB)
+2025-06-21T16:55:29.011665748Z Downloading Flask_Login-0.6.3-py3-none-any.whl (17 kB)
+2025-06-21T16:55:29.082912759Z Downloading flask-3.1.1-py3-none-any.whl (103 kB)
+2025-06-21T16:55:29.481011942Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.3/103.3 kB 238.2 kB/s eta 0:00:00
+2025-06-21T16:55:29.493647349Z Downloading flask_sqlalchemy-3.1.1-py3-none-any.whl (25 kB)
+2025-06-21T16:55:30.235228187Z Downloading gunicorn-23.0.0-py3-none-any.whl (85 kB)
+2025-06-21T16:55:30.698596087Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.0/85.0 kB 162.5 kB/s eta 0:00:00
+2025-06-21T16:55:30.711824361Z Downloading psycopg2_binary-2.9.10-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+2025-06-21T16:55:31.177809218Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 6.6 MB/s eta 0:00:00
+2025-06-21T16:55:31.1913063Z Downloading flask_wtf-1.2.2-py3-none-any.whl (12 kB)
+2025-06-21T16:55:31.518619295Z Downloading beautifulsoup4-4.13.4-py3-none-any.whl (187 kB)
+2025-06-21T16:55:32.058302413Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 187.3/187.3 kB 329.7 kB/s eta 0:00:00
+2025-06-21T16:55:32.169863676Z Downloading flask_mail-0.10.0-py3-none-any.whl (8.5 kB)
+2025-06-21T16:55:32.881226665Z Downloading APScheduler-3.11.0-py3-none-any.whl (64 kB)
+2025-06-21T16:55:33.572247183Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.0/64.0 kB 78.5 kB/s eta 0:00:00
+2025-06-21T16:55:33.589489444Z Downloading sendgrid-6.12.4-py3-none-any.whl (102 kB)
+2025-06-21T16:55:34.387449461Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.1/102.1 kB 115.6 kB/s eta 0:00:00
+2025-06-21T16:55:34.389307165Z Using cached requests-2.32.4-py3-none-any.whl (64 kB)
+2025-06-21T16:55:34.402272621Z Downloading sqlalchemy-2.0.41-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+2025-06-21T16:55:35.015109516Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 5.4 MB/s eta 0:00:00
+2025-06-21T16:55:35.029577787Z Downloading werkzeug-3.1.3-py3-none-any.whl (224 kB)
+2025-06-21T16:55:35.460062371Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 224.5/224.5 kB 501.4 kB/s eta 0:00:00
+2025-06-21T16:55:35.475260412Z Downloading wtforms-3.2.1-py3-none-any.whl (152 kB)
+2025-06-21T16:55:35.759259378Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 152.5/152.5 kB 510.1 kB/s eta 0:00:00
+2025-06-21T16:55:35.776189711Z Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+2025-06-21T16:55:36.178716881Z Using cached certifi-2025.6.15-py3-none-any.whl (157 kB)
+2025-06-21T16:55:36.271565671Z Using cached charset_normalizer-3.4.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (147 kB)
+2025-06-21T16:55:36.283468107Z Downloading click-8.2.1-py3-none-any.whl (102 kB)
+2025-06-21T16:55:36.679769167Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.2/102.2 kB 233.9 kB/s eta 0:00:00
+2025-06-21T16:55:36.693045403Z Downloading dnspython-2.7.0-py3-none-any.whl (313 kB)
+2025-06-21T16:55:36.851147159Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 313.6/313.6 kB 2.0 MB/s eta 0:00:00
+2025-06-21T16:55:36.863397865Z Downloading ecdsa-0.19.1-py2.py3-none-any.whl (150 kB)
+2025-06-21T16:55:36.982920479Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 150.6/150.6 kB 1.3 MB/s eta 0:00:00
+2025-06-21T16:55:36.996189805Z Downloading greenlet-3.2.3-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (585 kB)
+2025-06-21T16:55:37.024197879Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 585.5/585.5 kB 24.4 MB/s eta 0:00:00
+2025-06-21T16:55:37.026839126Z Using cached idna-3.10-py3-none-any.whl (70 kB)
+2025-06-21T16:55:37.044761297Z Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+2025-06-21T16:55:37.068171287Z Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+2025-06-21T16:55:37.089880498Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 8.7 MB/s eta 0:00:00
+2025-06-21T16:55:37.103392851Z Downloading MarkupSafe-3.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+2025-06-21T16:55:37.123062123Z Downloading python_http_client-3.3.7-py3-none-any.whl (8.4 kB)
+2025-06-21T16:55:37.141689874Z Downloading soupsieve-2.7-py3-none-any.whl (36 kB)
+2025-06-21T16:55:37.161636814Z Downloading typing_extensions-4.14.0-py3-none-any.whl (43 kB)
+2025-06-21T16:55:37.178783172Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.8/43.8 kB 2.4 MB/s eta 0:00:00
+2025-06-21T16:55:37.190968017Z Downloading tzlocal-5.3.1-py3-none-any.whl (18 kB)
+2025-06-21T16:55:37.199996639Z Using cached urllib3-2.5.0-py3-none-any.whl (129 kB)
+2025-06-21T16:55:37.201996037Z Using cached packaging-25.0-py3-none-any.whl (66 kB)
+2025-06-21T16:55:37.214151721Z Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+2025-06-21T16:55:37.445002321Z Installing collected packages: urllib3, tzlocal, typing-extensions, soupsieve, six, python-http-client, psycopg2-binary, packaging, markupsafe, itsdangerous, idna, greenlet, dnspython, click, charset_normalizer, certifi, blinker, wtforms, werkzeug, sqlalchemy, requests, jinja2, gunicorn, email-validator, ecdsa, beautifulsoup4, apscheduler, sendgrid, flask, flask-wtf, flask-sqlalchemy, flask-mail, flask-login
+2025-06-21T16:55:58.224375436Z Successfully installed apscheduler-3.11.0 beautifulsoup4-4.13.4 blinker-1.9.0 certifi-2025.6.15 charset_normalizer-3.4.2 click-8.2.1 dnspython-2.7.0 ecdsa-0.19.1 email-validator-2.2.0 flask-3.1.1 flask-login-0.6.3 flask-mail-0.10.0 flask-sqlalchemy-3.1.1 flask-wtf-1.2.2 greenlet-3.2.3 gunicorn-23.0.0 idna-3.10 itsdangerous-2.2.0 jinja2-3.1.6 markupsafe-3.0.2 packaging-25.0 psycopg2-binary-2.9.10 python-http-client-3.3.7 requests-2.32.4 sendgrid-6.12.4 six-1.17.0 soupsieve-2.7 sqlalchemy-2.0.41 typing-extensions-4.14.0 tzlocal-5.3.1 urllib3-2.5.0 werkzeug-3.1.3 wtforms-3.2.1
+2025-06-21T16:55:58.754702631Z 
+2025-06-21T16:55:58.754722311Z [notice] A new release of pip is available: 24.0 -> 25.1.1
+2025-06-21T16:55:58.754726571Z [notice] To update, run: pip install --upgrade pip
+2025-06-21T16:56:23.919326732Z ==> Uploading build...
+2025-06-21T16:56:51.499662762Z ==> Uploaded in 12.1s. Compression took 15.5s
+2025-06-21T16:56:51.629058992Z ==> Build successful 🎉
+2025-06-21T16:56:59.584837734Z ==> Deploying...
+2025-06-21T16:57:42.910711645Z ==> Running 'gunicorn app:app'
+2025-06-21T16:57:56.226012468Z WARNING:root:Using SQLite for local development. Set DATABASE_URL for production.
+2025-06-21T16:58:00.436618092Z DEBUG:tzlocal:/etc/timezone found, contents:
+2025-06-21T16:58:00.436651213Z  Etc/UTC
+2025-06-21T16:58:00.436656513Z 
+2025-06-21T16:58:00.436671913Z DEBUG:tzlocal:/etc/localtime found
+2025-06-21T16:58:00.436676743Z DEBUG:tzlocal:2 found:
+2025-06-21T16:58:00.436681074Z  {'/etc/timezone': 'Etc/UTC', '/etc/localtime is a symlink to': 'Etc/UTC'}
+2025-06-21T16:58:00.436685234Z INFO:apscheduler.scheduler:Scheduler started
+2025-06-21T16:58:00.436748926Z DEBUG:apscheduler.scheduler:Looking for jobs to run
+2025-06-21T16:58:00.442330555Z DEBUG:apscheduler.scheduler:No jobs; waiting until a job is added
+2025-06-21T16:58:01.317074872Z INFO:root:Could not load jobs from database: (sqlite3.OperationalError) no such table: scheduled_job
+2025-06-21T16:58:01.317107083Z [SQL: SELECT scheduled_job.id AS scheduled_job_id, scheduled_job.name AS scheduled_job_name, scheduled_job.scheduled_time AS scheduled_job_scheduled_time, scheduled_job.status AS scheduled_job_status, scheduled_job.created_at AS scheduled_job_created_at, scheduled_job.updated_at AS scheduled_job_updated_at, scheduled_job.user_id AS scheduled_job_user_id, scheduled_job.template_id AS scheduled_job_template_id, scheduled_job.segment_id AS scheduled_job_segment_id, scheduled_job.smtp_config_id AS scheduled_job_smtp_config_id, scheduled_job.from_email AS scheduled_job_from_email, scheduled_job.from_name AS scheduled_job_from_name, scheduled_job.started_at AS scheduled_job_started_at, scheduled_job.completed_at AS scheduled_job_completed_at, scheduled_job.current_batch AS scheduled_job_current_batch, scheduled_job.batch_size AS scheduled_job_batch_size, scheduled_job.total_emails AS scheduled_job_total_emails, scheduled_job.sent_emails AS scheduled_job_sent_emails, scheduled_job.failed_emails AS scheduled_job_failed_emails, scheduled_job.opened_emails AS scheduled_job_opened_emails, scheduled_job.clicked_emails AS scheduled_job_clicked_emails, scheduled_job.sending_started_at AS scheduled_job_sending_started_at, scheduled_job.sending_completed_at AS scheduled_job_sending_completed_at, scheduled_job.avg_sending_rate AS scheduled_job_avg_sending_rate, scheduled_job.use_optimal_time AS scheduled_job_use_optimal_time, scheduled_job.optimal_time_window_start AS scheduled_job_optimal_time_window_start, scheduled_job.optimal_time_window_end AS scheduled_job_optimal_time_window_end, scheduled_job.optimal_day_preference AS scheduled_job_optimal_day_preference, scheduled_job.actual_send_time AS scheduled_job_actual_send_time 
+2025-06-21T16:58:01.317112643Z FROM scheduled_job 
+2025-06-21T16:58:01.317117133Z WHERE scheduled_job.status = ? AND scheduled_job.scheduled_time > ?]
+2025-06-21T16:58:01.317121594Z [parameters: ('scheduled', '2025-06-21 16:58:00.436773')]
+2025-06-21T16:58:01.317125344Z (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-06-21T16:58:01.320310221Z INFO:apscheduler.scheduler:Added job "check_for_new_jobs" to job store "default"
+2025-06-21T16:58:01.405327605Z INFO:root:Scheduler initialized
+2025-06-21T16:58:01.405519811Z DEBUG:apscheduler.scheduler:Looking for jobs to run
+2025-06-21T16:58:01.405686647Z DEBUG:apscheduler.scheduler:Next wakeup is due at 2025-06-21 16:59:01.319828+00:00 (in 59.914304 seconds)
+2025-06-21T16:58:01.405984337Z [2025-06-21 16:58:01 +0000] [103] [INFO] Starting gunicorn 23.0.0
+2025-06-21T16:58:01.406604668Z [2025-06-21 16:58:01 +0000] [103] [INFO] Listening at: http://0.0.0.0:10000 (103)
+2025-06-21T16:58:01.406628049Z [2025-06-21 16:58:01 +0000] [103] [INFO] Using worker: sync
+2025-06-21T16:58:01.413701418Z [2025-06-21 16:58:01 +0000] [105] [INFO] Booting worker with pid: 105
+2025-06-21T16:58:01.60429531Z 127.0.0.1 - - [21/Jun/2025:16:58:01 +0000] "HEAD / HTTP/1.1" 302 0 "-" "Go-http-client/1.1"
+2025-06-21T16:58:10.302368341Z ==> Your service is live 🎉
+2025-06-21T16:58:11.276240473Z 10.214.210.208 - - [21/Jun/2025:16:58:11 +0000] "GET / HTTP/1.1" 302 199 "-" "Go-http-client/2.0"
+2025-06-21T16:58:11.519971461Z 10.214.210.208 - - [21/Jun/2025:16:58:11 +0000] "GET /login HTTP/1.1" 200 5295 "https://emailcampaignmanager.onrender.com" "Go-http-client/2.0"
+2025-06-21T16:59:01.322282692Z DEBUG:apscheduler.scheduler:Looking for jobs to run
+2025-06-21T16:59:01.323216063Z INFO:apscheduler.executors.default:Running job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 16:59:01 UTC)" (scheduled at 2025-06-21 16:59:01.319828+00:00)
+2025-06-21T16:59:01.329471924Z DEBUG:apscheduler.scheduler:Next wakeup is due at 2025-06-21 17:00:01.319828+00:00 (in 59.991102 seconds)
+2025-06-21T16:59:01.331764202Z DEBUG:root:Could not check for new jobs: (sqlite3.OperationalError) no such table: scheduled_job
+2025-06-21T16:59:01.331792873Z [SQL: SELECT scheduled_job.id AS scheduled_job_id, scheduled_job.name AS scheduled_job_name, scheduled_job.scheduled_time AS scheduled_job_scheduled_time, scheduled_job.status AS scheduled_job_status, scheduled_job.created_at AS scheduled_job_created_at, scheduled_job.updated_at AS scheduled_job_updated_at, scheduled_job.user_id AS scheduled_job_user_id, scheduled_job.template_id AS scheduled_job_template_id, scheduled_job.segment_id AS scheduled_job_segment_id, scheduled_job.smtp_config_id AS scheduled_job_smtp_config_id, scheduled_job.from_email AS scheduled_job_from_email, scheduled_job.from_name AS scheduled_job_from_name, scheduled_job.started_at AS scheduled_job_started_at, scheduled_job.completed_at AS scheduled_job_completed_at, scheduled_job.current_batch AS scheduled_job_current_batch, scheduled_job.batch_size AS scheduled_job_batch_size, scheduled_job.total_emails AS scheduled_job_total_emails, scheduled_job.sent_emails AS scheduled_job_sent_emails, scheduled_job.failed_emails AS scheduled_job_failed_emails, scheduled_job.opened_emails AS scheduled_job_opened_emails, scheduled_job.clicked_emails AS scheduled_job_clicked_emails, scheduled_job.sending_started_at AS scheduled_job_sending_started_at, scheduled_job.sending_completed_at AS scheduled_job_sending_completed_at, scheduled_job.avg_sending_rate AS scheduled_job_avg_sending_rate, scheduled_job.use_optimal_time AS scheduled_job_use_optimal_time, scheduled_job.optimal_time_window_start AS scheduled_job_optimal_time_window_start, scheduled_job.optimal_time_window_end AS scheduled_job_optimal_time_window_end, scheduled_job.optimal_day_preference AS scheduled_job_optimal_day_preference, scheduled_job.actual_send_time AS scheduled_job_actual_send_time 
+2025-06-21T16:59:01.331799613Z FROM scheduled_job 
+2025-06-21T16:59:01.331804963Z WHERE scheduled_job.status = ? AND scheduled_job.scheduled_time > ?]
+2025-06-21T16:59:01.331810414Z [parameters: ('scheduled', '2025-06-21 16:59:01.323339')]
+2025-06-21T16:59:01.331814874Z (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-06-21T16:59:01.33260551Z INFO:apscheduler.executors.default:Job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 17:00:01 UTC)" executed successfully
