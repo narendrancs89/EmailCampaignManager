@@ -58,9 +58,11 @@ def load_jobs_from_db(app):
     with app.app_context():
         try:
             # Get jobs that are scheduled to run in the future
+            current_time = datetime.utcnow()
             scheduled_jobs = ScheduledJob.query.filter(
-                ScheduledJob.status == 'scheduled',
-                ScheduledJob.scheduled_time > datetime.utcnow()
+                ScheduledJob.status == 'scheduled'
+            ).filter(
+                ScheduledJob.scheduled_time > current_time
             ).all()
             
             for job in scheduled_jobs:
@@ -75,9 +77,11 @@ def check_for_new_jobs(app):
     with app.app_context():
         try:
             # Get jobs that are scheduled to run in the future and not in the scheduler
+            current_time = datetime.utcnow()
             scheduled_jobs = ScheduledJob.query.filter(
-                ScheduledJob.status == 'scheduled',
-                ScheduledJob.scheduled_time > datetime.utcnow()
+                ScheduledJob.status == 'scheduled'
+            ).filter(
+                ScheduledJob.scheduled_time > current_time
             ).all()
             
             for job in scheduled_jobs:

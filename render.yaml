@@ -2,7 +2,7 @@ services:
   - type: web
     name: email-marketing-platform
     env: python
-    buildCommand: pip install -r render_requirements.txt
+    buildCommand: ./build.sh
     startCommand: gunicorn --bind 0.0.0.0:$PORT main:app
     envVars:
       - key: PYTHON_VERSION
@@ -11,7 +11,7 @@ services:
         fromDatabase:
           name: email_marketing_db
           property: connectionString
-      - key: FLASK_SECRET_KEY
+      - key: SESSION_SECRET
         generateValue: true
       - key: BREVO_API_KEY
         sync: false

@@ -47,8 +47,8 @@ def login():
         logging.info(f"Login form submitted for username: {form.username.data}")
         # Allow login with either username or email
         user = User.query.filter(
-            (User.username == form.username.data) | 
-            (User.email == form.username.data)
+            db.or_(User.username == form.username.data, 
+                   User.email == form.username.data)
         ).first()
         
         if user is None:
