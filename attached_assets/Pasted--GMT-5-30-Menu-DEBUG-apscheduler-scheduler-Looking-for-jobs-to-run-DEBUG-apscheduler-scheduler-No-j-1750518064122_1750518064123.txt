@@ -1,0 +1,54 @@
+
+GMT+5:30
+
+Menu
+DEBUG:apscheduler.scheduler:Looking for jobs to run
+DEBUG:apscheduler.scheduler:No jobs; waiting until a job is added
+INFO:root:Could not load jobs from database: (sqlite3.OperationalError) no such table: scheduled_job
+[SQL: SELECT scheduled_job.id AS scheduled_job_id, scheduled_job.name AS scheduled_job_name, scheduled_job.scheduled_time AS scheduled_job_scheduled_time, scheduled_job.status AS scheduled_job_status, scheduled_job.created_at AS scheduled_job_created_at, scheduled_job.updated_at AS scheduled_job_updated_at, scheduled_job.user_id AS scheduled_job_user_id, scheduled_job.template_id AS scheduled_job_template_id, scheduled_job.segment_id AS scheduled_job_segment_id, scheduled_job.smtp_config_id AS scheduled_job_smtp_config_id, scheduled_job.from_email AS scheduled_job_from_email, scheduled_job.from_name AS scheduled_job_from_name, scheduled_job.started_at AS scheduled_job_started_at, scheduled_job.completed_at AS scheduled_job_completed_at, scheduled_job.current_batch AS scheduled_job_current_batch, scheduled_job.batch_size AS scheduled_job_batch_size, scheduled_job.total_emails AS scheduled_job_total_emails, scheduled_job.sent_emails AS scheduled_job_sent_emails, scheduled_job.failed_emails AS scheduled_job_failed_emails, scheduled_job.opened_emails AS scheduled_job_opened_emails, scheduled_job.clicked_emails AS scheduled_job_clicked_emails, scheduled_job.sending_started_at AS scheduled_job_sending_started_at, scheduled_job.sending_completed_at AS scheduled_job_sending_completed_at, scheduled_job.avg_sending_rate AS scheduled_job_avg_sending_rate, scheduled_job.use_optimal_time AS scheduled_job_use_optimal_time, scheduled_job.optimal_time_window_start AS scheduled_job_optimal_time_window_start, scheduled_job.optimal_time_window_end AS scheduled_job_optimal_time_window_end, scheduled_job.optimal_day_preference AS scheduled_job_optimal_day_preference, scheduled_job.actual_send_time AS scheduled_job_actual_send_time 
+FROM scheduled_job 
+WHERE scheduled_job.status = ? AND scheduled_job.scheduled_time > ?]
+[parameters: ('scheduled', '2025-06-21 14:58:15.327665')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:apscheduler.scheduler:Added job "check_for_new_jobs" to job store "default"
+INFO:root:Scheduler initialized
+[2025-06-21 14:58:15 +0000] [104] [INFO] Starting gunicorn 23.0.0
+DEBUG:apscheduler.scheduler:Looking for jobs to run
+DEBUG:apscheduler.scheduler:Next wakeup is due at 2025-06-21 14:59:15.728240+00:00 (in 59.914913 seconds)
+[2025-06-21 14:58:15 +0000] [104] [INFO] Listening at: http://0.0.0.0:10000 (104)
+[2025-06-21 14:58:15 +0000] [104] [INFO] Using worker: sync
+[2025-06-21 14:58:15 +0000] [106] [INFO] Booting worker with pid: 106
+127.0.0.1 - - [21/Jun/2025:14:58:16 +0000] "HEAD / HTTP/1.1" 302 0 "-" "Go-http-client/1.1"
+DEBUG:apscheduler.scheduler:Looking for jobs to run
+DEBUG:apscheduler.scheduler:Next wakeup is due at 2025-06-21 14:59:20.016817+00:00 (in 59.999177 seconds)
+INFO:apscheduler.executors.default:Running job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 14:59:20 UTC)" (scheduled at 2025-06-21 14:58:20.016817+00:00)
+DEBUG:root:Could not check for new jobs: (sqlite3.OperationalError) no such table: scheduled_job
+[SQL: SELECT scheduled_job.id AS scheduled_job_id, scheduled_job.name AS scheduled_job_name, scheduled_job.scheduled_time AS scheduled_job_scheduled_time, scheduled_job.status AS scheduled_job_status, scheduled_job.created_at AS scheduled_job_created_at, scheduled_job.updated_at AS scheduled_job_updated_at, scheduled_job.user_id AS scheduled_job_user_id, scheduled_job.template_id AS scheduled_job_template_id, scheduled_job.segment_id AS scheduled_job_segment_id, scheduled_job.smtp_config_id AS scheduled_job_smtp_config_id, scheduled_job.from_email AS scheduled_job_from_email, scheduled_job.from_name AS scheduled_job_from_name, scheduled_job.started_at AS scheduled_job_started_at, scheduled_job.completed_at AS scheduled_job_completed_at, scheduled_job.current_batch AS scheduled_job_current_batch, scheduled_job.batch_size AS scheduled_job_batch_size, scheduled_job.total_emails AS scheduled_job_total_emails, scheduled_job.sent_emails AS scheduled_job_sent_emails, scheduled_job.failed_emails AS scheduled_job_failed_emails, scheduled_job.opened_emails AS scheduled_job_opened_emails, scheduled_job.clicked_emails AS scheduled_job_clicked_emails, scheduled_job.sending_started_at AS scheduled_job_sending_started_at, scheduled_job.sending_completed_at AS scheduled_job_sending_completed_at, scheduled_job.avg_sending_rate AS scheduled_job_avg_sending_rate, scheduled_job.use_optimal_time AS scheduled_job_use_optimal_time, scheduled_job.optimal_time_window_start AS scheduled_job_optimal_time_window_start, scheduled_job.optimal_time_window_end AS scheduled_job_optimal_time_window_end, scheduled_job.optimal_day_preference AS scheduled_job_optimal_day_preference, scheduled_job.actual_send_time AS scheduled_job_actual_send_time 
+FROM scheduled_job 
+WHERE scheduled_job.status = ? AND scheduled_job.scheduled_time > ?]
+[parameters: ('scheduled', '2025-06-21 14:58:20.017972')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:apscheduler.executors.default:Job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 14:59:20 UTC)" executed successfully
+DEBUG:apscheduler.scheduler:Looking for jobs to run
+INFO:apscheduler.executors.default:Running job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 14:59:15 UTC)" (scheduled at 2025-06-21 14:59:15.728240+00:00)
+DEBUG:apscheduler.scheduler:Next wakeup is due at 2025-06-21 15:00:15.728240+00:00 (in 59.993643 seconds)
+DEBUG:root:Could not check for new jobs: (sqlite3.OperationalError) no such table: scheduled_job
+[SQL: SELECT scheduled_job.id AS scheduled_job_id, scheduled_job.name AS scheduled_job_name, scheduled_job.scheduled_time AS scheduled_job_scheduled_time, scheduled_job.status AS scheduled_job_status, scheduled_job.created_at AS scheduled_job_created_at, scheduled_job.updated_at AS scheduled_job_updated_at, scheduled_job.user_id AS scheduled_job_user_id, scheduled_job.template_id AS scheduled_job_template_id, scheduled_job.segment_id AS scheduled_job_segment_id, scheduled_job.smtp_config_id AS scheduled_job_smtp_config_id, scheduled_job.from_email AS scheduled_job_from_email, scheduled_job.from_name AS scheduled_job_from_name, scheduled_job.started_at AS scheduled_job_started_at, scheduled_job.completed_at AS scheduled_job_completed_at, scheduled_job.current_batch AS scheduled_job_current_batch, scheduled_job.batch_size AS scheduled_job_batch_size, scheduled_job.total_emails AS scheduled_job_total_emails, scheduled_job.sent_emails AS scheduled_job_sent_emails, scheduled_job.failed_emails AS scheduled_job_failed_emails, scheduled_job.opened_emails AS scheduled_job_opened_emails, scheduled_job.clicked_emails AS scheduled_job_clicked_emails, scheduled_job.sending_started_at AS scheduled_job_sending_started_at, scheduled_job.sending_completed_at AS scheduled_job_sending_completed_at, scheduled_job.avg_sending_rate AS scheduled_job_avg_sending_rate, scheduled_job.use_optimal_time AS scheduled_job_use_optimal_time, scheduled_job.optimal_time_window_start AS scheduled_job_optimal_time_window_start, scheduled_job.optimal_time_window_end AS scheduled_job_optimal_time_window_end, scheduled_job.optimal_day_preference AS scheduled_job_optimal_day_preference, scheduled_job.actual_send_time AS scheduled_job_actual_send_time 
+FROM scheduled_job 
+WHERE scheduled_job.status = ? AND scheduled_job.scheduled_time > ?]
+[parameters: ('scheduled', '2025-06-21 14:59:15.730353')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:apscheduler.executors.default:Job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 15:00:15 UTC)" executed successfully
+DEBUG:apscheduler.scheduler:Looking for jobs to run
+DEBUG:apscheduler.scheduler:Next wakeup is due at 2025-06-21 15:00:20.016817+00:00 (in 59.997944 seconds)
+INFO:apscheduler.executors.default:Running job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 15:00:20 UTC)" (scheduled at 2025-06-21 14:59:20.016817+00:00)
+DEBUG:root:Could not check for new jobs: (sqlite3.OperationalError) no such table: scheduled_job
+[SQL: SELECT scheduled_job.id AS scheduled_job_id, scheduled_job.name AS scheduled_job_name, scheduled_job.scheduled_time AS scheduled_job_scheduled_time, scheduled_job.status AS scheduled_job_status, scheduled_job.created_at AS scheduled_job_created_at, scheduled_job.updated_at AS scheduled_job_updated_at, scheduled_job.user_id AS scheduled_job_user_id, scheduled_job.template_id AS scheduled_job_template_id, scheduled_job.segment_id AS scheduled_job_segment_id, scheduled_job.smtp_config_id AS scheduled_job_smtp_config_id, scheduled_job.from_email AS scheduled_job_from_email, scheduled_job.from_name AS scheduled_job_from_name, scheduled_job.started_at AS scheduled_job_started_at, scheduled_job.completed_at AS scheduled_job_completed_at, scheduled_job.current_batch AS scheduled_job_current_batch, scheduled_job.batch_size AS scheduled_job_batch_size, scheduled_job.total_emails AS scheduled_job_total_emails, scheduled_job.sent_emails AS scheduled_job_sent_emails, scheduled_job.failed_emails AS scheduled_job_failed_emails, scheduled_job.opened_emails AS scheduled_job_opened_emails, scheduled_job.clicked_emails AS scheduled_job_clicked_emails, scheduled_job.sending_started_at AS scheduled_job_sending_started_at, scheduled_job.sending_completed_at AS scheduled_job_sending_completed_at, scheduled_job.avg_sending_rate AS scheduled_job_avg_sending_rate, scheduled_job.use_optimal_time AS scheduled_job_use_optimal_time, scheduled_job.optimal_time_window_start AS scheduled_job_optimal_time_window_start, scheduled_job.optimal_time_window_end AS scheduled_job_optimal_time_window_end, scheduled_job.optimal_day_preference AS scheduled_job_optimal_day_preference, scheduled_job.actual_send_time AS scheduled_job_actual_send_time 
+FROM scheduled_job 
+WHERE scheduled_job.status = ? AND scheduled_job.scheduled_time > ?]
+[parameters: ('scheduled', '2025-06-21 14:59:20.019173')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:apscheduler.executors.default:Job "check_for_new_jobs (trigger: interval[0:01:00], next run at: 2025-06-21 15:00:20 UTC)" executed successfully
+[2025-06-21 14:59:25 +0000] [103] [INFO] Handling signal: term
+[2025-06-21 14:59:25 +0000] [106] [INFO] Worker exiting (pid: 106)
+[2025-06-21 14:59:27 +0000] [103] [INFO] Shutting down: Master

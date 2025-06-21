@@ -1671,15 +1671,18 @@ def monitoring():
     
     # Get all jobs for the current user within date range
     jobs = ScheduledJob.query.filter(
-        ScheduledJob.user_id == current_user.id,
-        ScheduledJob.scheduled_time >= from_date,
+        ScheduledJob.user_id == current_user.id
+    ).filter(
+        ScheduledJob.scheduled_time >= from_date
+    ).filter(
         ScheduledJob.scheduled_time <= to_date
     ).order_by(ScheduledJob.scheduled_time.desc()).all()
     
     # Get all jobs for time-series data (last 90 days)
     time_series_start = datetime.utcnow() - timedelta(days=90)
     all_recent_jobs = ScheduledJob.query.filter(
-        ScheduledJob.user_id == current_user.id,
+        ScheduledJob.user_id == current_user.id
+    ).filter(
         ScheduledJob.scheduled_time >= time_series_start
     ).order_by(ScheduledJob.scheduled_time.asc()).all()
     
@@ -1726,33 +1729,48 @@ def monitoring():
     # Group jobs by status for chart
     status_counts = {
         'scheduled': ScheduledJob.query.filter(
-            ScheduledJob.user_id == current_user.id, 
-            ScheduledJob.status == 'scheduled',
-            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.user_id == current_user.id
+        ).filter(
+            ScheduledJob.status == 'scheduled'
+        ).filter(
+            ScheduledJob.scheduled_time >= from_date
+        ).filter(
             ScheduledJob.scheduled_time <= to_date
         ).count(),
         'running': ScheduledJob.query.filter(
-            ScheduledJob.user_id == current_user.id, 
-            ScheduledJob.status == 'running',
-            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.user_id == current_user.id
+        ).filter(
+            ScheduledJob.status == 'running'
+        ).filter(
+            ScheduledJob.scheduled_time >= from_date
+        ).filter(
             ScheduledJob.scheduled_time <= to_date
         ).count(),
         'completed': ScheduledJob.query.filter(
-            ScheduledJob.user_id == current_user.id, 
-            ScheduledJob.status == 'completed',
-            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.user_id == current_user.id
+        ).filter(
+            ScheduledJob.status == 'completed'
+        ).filter(
+            ScheduledJob.scheduled_time >= from_date
+        ).filter(
             ScheduledJob.scheduled_time <= to_date
         ).count(),
         'failed': ScheduledJob.query.filter(
-            ScheduledJob.user_id == current_user.id, 
-            ScheduledJob.status == 'failed',
-            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.user_id == current_user.id
+        ).filter(
+            ScheduledJob.status == 'failed'
+        ).filter(
+            ScheduledJob.scheduled_time >= from_date
+        ).filter(
             ScheduledJob.scheduled_time <= to_date
         ).count(),
         'cancelled': ScheduledJob.query.filter(
-            ScheduledJob.user_id == current_user.id, 
-            ScheduledJob.status == 'cancelled',
-            ScheduledJob.scheduled_time >= from_date,
+            ScheduledJob.user_id == current_user.id
+        ).filter(
+            ScheduledJob.status == 'cancelled'
+        ).filter(
+            ScheduledJob.scheduled_time >= from_date
+        ).filter(
             ScheduledJob.scheduled_time <= to_date
         ).count()
     }
