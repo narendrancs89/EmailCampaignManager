@@ -36,6 +36,7 @@ else:
     # Handle PostgreSQL URL format issues for deployment
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
+    logging.info(f"Using PostgreSQL database: {database_url[:30]}...")
     
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -71,6 +72,21 @@ def inject_now():
 
 # Import models to ensure tables are created
 import models  # noqa: F401
+
+# Create all database tables
+with app.app_context():
+    try:
+        db.create_all()
+        logging.info("Database tables created successfully")
+        
+        # Check if we're using PostgreSQL
+        if database_url and 'postgresql' in database_url:
+            logging.info("Connected to PostgreSQL database")
+        else:
+            logging.warning("Not using PostgreSQL - check DATABASE_URL environment variable")
+            
+    except Exception as e:
+        logging.error(f"Database initialization error: {e}")
 
 # Import routes to register them with the app
 import routes  # noqa: F401
