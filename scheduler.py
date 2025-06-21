@@ -56,32 +56,42 @@ def init_scheduler(app):
 def load_jobs_from_db(app):
     """Load existing jobs from database that are scheduled but not yet run"""
     with app.app_context():
-        # Get jobs that are scheduled to run in the future
-        scheduled_jobs = ScheduledJob.query.filter(
-            ScheduledJob.status == 'scheduled',
-            ScheduledJob.scheduled_time > datetime.utcnow()
-        ).all()
-        
-        for job in scheduled_jobs:
-            add_job_to_scheduler(app, job)
+        try:
+            # Get jobs that are scheduled to run in the future
+            scheduled_jobs = ScheduledJob.query.filter(
+                ScheduledJob.status == 'scheduled',
+                ScheduledJob.scheduled_time > datetime.utcnow()
+            ).all()
+            
+            for job in scheduled_jobs:
+                add_job_to_scheduler(app, job)
+        except Exception as e:
+            # Database tables may not exist yet during initialization
+            logging.info(f"Could not load jobs from database: {e}")
+            pass
 
 def check_for_new_jobs(app):
     """Check for newly added jobs in the database"""
     with app.app_context():
-        # Get jobs that are scheduled to run in the future and not in the scheduler
-        scheduled_jobs = ScheduledJob.query.filter(
-            ScheduledJob.status == 'scheduled',
-            ScheduledJob.scheduled_time > datetime.utcnow()
-        ).all()
-        
-        for job in scheduled_jobs:
-            # Check if this job is already in the scheduler
-            try:
-                if not scheduler.get_job(f'email_job_{job.id}'):
+        try:
+            # Get jobs that are scheduled to run in the future and not in the scheduler
+            scheduled_jobs = ScheduledJob.query.filter(
+                ScheduledJob.status == 'scheduled',
+                ScheduledJob.scheduled_time > datetime.utcnow()
+            ).all()
+            
+            for job in scheduled_jobs:
+                # Check if this job is already in the scheduler
+                try:
+                    if not scheduler.get_job(f'email_job_{job.id}'):
+                        add_job_to_scheduler(app, job)
+                except:
+                    # If job doesn't exist, add it
                     add_job_to_scheduler(app, job)
-            except:
-                # If job doesn't exist, add it
-                add_job_to_scheduler(app, job)
+        except Exception as e:
+            # Database tables may not exist yet during initialization
+            logging.debug(f"Could not check for new jobs: {e}")
+            pass
 
 def add_job_to_scheduler(app, db_job):
     """Add a job to the scheduler"""

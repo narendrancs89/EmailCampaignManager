@@ -48,7 +48,7 @@ app.config["USE_BREVO_API"] = True if os.environ.get("BREVO_API_KEY") else False
 # Initialize extensions with app
 db.init_app(app)
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+# login_manager.login_view = 'login'  # Will be set after routes are imported
 login_manager.login_message_category = 'info'
 mail.init_app(app)
 
@@ -57,32 +57,15 @@ mail.init_app(app)
 def inject_now():
     return {'now': datetime.utcnow()}
 
-# App context setup
-with app.app_context():
-    # Import models to ensure tables are created
-    import models  # noqa: F401
-    from models import User
-    
-    # Create database tables if they don't exist
-    db.create_all()
-    
-    # Create a default admin user if none exists
-    if not User.query.filter_by(is_admin=True).first():
-        admin_user = User(
-            username='admin',
-            email='admin@example.com',
-            is_admin=True,
-            email_verified=True,
-            is_active=True
-        )
-        admin_user.set_password('Admin123!')
-        db.session.add(admin_user)
-        db.session.commit()
-        print('Created default admin user: admin@example.com / Admin123!')
-    
-    # Import routes to register them with the app
-    import routes  # noqa: F401
-    
-    # Import and initialize scheduler
+# Import models to ensure tables are created
+import models  # noqa: F401
+
+# Import routes to register them with the app
+import routes  # noqa: F401
+
+# Initialize scheduler
+try:
     from scheduler import init_scheduler
     init_scheduler(app)
+except ImportError:
+    pass  # Scheduler module may not exist yet
