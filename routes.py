@@ -45,7 +45,11 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         logging.info(f"Login form submitted for username: {form.username.data}")
-        user = User.query.filter_by(username=form.username.data).first()
+        # Allow login with either username or email
+        user = User.query.filter(
+            (User.username == form.username.data) | 
+            (User.email == form.username.data)
+        ).first()
         
         if user is None:
             logging.error(f"Login error: User {form.username.data} not found")
