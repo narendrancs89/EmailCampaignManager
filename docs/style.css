@@ -264,6 +264,14 @@ body {
     background-color: white;
 }
 
+.tech-stack h2,
+.techstack h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: #333;
+}
+
 .tech-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

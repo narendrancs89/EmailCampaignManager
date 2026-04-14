@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Campaign Manager - Admin Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; line-height: 1.6; color: #333; background-color: #f5f7fa; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav .container { display: flex; justify-content: space-between; align-items: center; }
+        nav h1 { font-size: 1.5rem; }
+        nav a { color: white; text-decoration: none; margin-left: 2rem; transition: opacity 0.3s; }
+        nav a:hover { opacity: 0.8; }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .header h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            height: fit-content;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 80px;
+        }
+
+        .sidebar h3 { color: #667eea; margin-bottom: 1rem; font-size: 1rem; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: 0.8rem; }
+        .sidebar a {
+            color: #555;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sidebar a:hover { color: #667eea; margin-left: 0.5rem; }
+
+        .main-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        section { margin-bottom: 3rem; }
+        section h2 { color: #667eea; font-size: 2rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #667eea; }
+        section h3 { color: #764ba2; font-size: 1.3rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+
+        .card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+
+        .card.danger { border-left-color: #f44336; }
+        .card.warning { border-left-color: #ff9800; }
+        .card.success { border-left-color: #4caf50; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .grid-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 5px;
+        }
+
+        .grid-item i { font-size: 2rem; color: #667eea; margin-bottom: 0.5rem; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 0.8rem;
+            text-align: left;
+        }
+
+        td {
+            border-bottom: 1px solid #eee;
+            padding: 0.8rem;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code { color: #333; background: none; padding: 0; }
+
+        ul, ol { margin-left: 2rem; margin-bottom: 1rem; }
+        li { margin-bottom: 0.5rem; }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        footer a { color: #667eea; text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .content-wrapper { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            nav .container { flex-direction: column; gap: 1rem; }
+            nav a { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <h1>📧 Email Campaign Manager</h1>
+            <a href="index.html">← Back to Home</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <div class="container">
+            <h1>Admin Guide</h1>
+            <p>Administrative tasks and system management</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content-wrapper">
+            <aside class="sidebar">
+                <h3><i class="fas fa-book"></i> Quick Navigation</h3>
+                <ul>
+                    <li><a href="#overview"><i class="fas fa-chart-pie"></i> Overview</a></li>
+                    <li><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#users"><i class="fas fa-users"></i> User Management</a></li>
+                    <li><a href="#registration"><i class="fas fa-pen"></i> Registrations</a></li>
+                    <li><a href="#permissions"><i class="fas fa-lock"></i> Permissions</a></li>
+                    <li><a href="#lists"><i class="fas fa-list"></i> Email Lists</a></li>
+                    <li><a href="#security"><i class="fas fa-shield-alt"></i> Security</a></li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <!-- Overview -->
+                <section id="overview">
+                    <h2><i class="fas fa-chart-pie"></i> Admin Overview</h2>
+                    
+                    <h3>What is an Admin?</h3>
+                    <p>An admin user has complete control over the Email Campaign Manager system. Admins can:</p>
+                    <ul>
+                        <li>Create and manage user accounts</li>
+                        <li>Approve or reject new user registrations</li>
+                        <li>Set permissions for individual users</li>
+                        <li>Create system-wide email lists</li>
+                        <li>View comprehensive analytics</li>
+                        <li>Manage SMTP configurations</li>
+                    </ul>
+
+                    <h3>Key Responsibilities</h3>
+                    <div class="grid">
+                        <div class="card">
+                            <h4><i class="fas fa-user-check"></i> User Approval</h4>
+                            <p>Review and approve new user registrations</p>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-key"></i> Permission Management</h4>
+                            <p>Control what each user can do</p>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-chart-bar"></i> System Monitoring</h4>
+                            <p>Track overall system health and usage</p>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-toolbox"></i> Maintenance</h4>
+                            <p>Handle user issues and troubleshooting</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Dashboard -->
+                <section id="dashboard">
+                    <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+
+                    <h3>What You'll See</h3>
+                    <ul>
+                        <li><strong>Total Users:</strong> Active and inactive users count</li>
+                        <li><strong>Pending Approvals:</strong> New registrations awaiting review</li>
+                        <li><strong>System Stats:</strong> Total campaigns, emails sent</li>
+                        <li><strong>Recent Activity:</strong> Latest user actions</li>
+                        <li><strong>Quick Actions:</strong> Direct links to common tasks</li>
+                    </ul>
+
+                    <h3>Dashboard Widgets</h3>
+                    <div class="card success">
+                        <h4>📊 Analytics Widget</h4>
+                        <p>View system-wide statistics including total emails sent, delivery rates, and engagement metrics.</p>
+                    </div>
+                    <div class="card success">
+                        <h4>👥 Users Widget</h4>
+                        <p>Quick overview of active users, pending approvals, and recent sign-ups.</p>
+                    </div>
+                    <div class="card success">
+                        <h4>⚙️ System Widget</h4>
+                        <p>Database status, email queue, scheduler health, and system settings.</p>
+                    </div>
+                </section>
+
+                <!-- User Management -->
+                <section id="users">
+                    <h2><i class="fas fa-users"></i> User Management</h2>
+
+                    <h3>Viewing All Users</h3>
+                    <ol>
+                        <li>Click <strong>"Admin"</strong> in the main menu</li>
+                        <li>Click <strong>"Manage Users"</strong> or <strong>"Users"</strong></li>
+                        <li>View the list of all users with their details:
+                            <ul>
+                                <li>Username and email</li>
+                                <li>Account status (active/inactive)</li>
+                                <li>Admin status</li>
+                                <li>Last login date</li>
+                                <li>Creation date</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h3>Create a New User Manually</h3>
+                    <ol>
+                        <li>Click <strong>"Admin"</strong> → <strong>"Create User"</strong></li>
+                        <li>Fill in user details:
+                            <ul>
+                                <li>Username (must be unique)</li>
+                                <li>Email (must be unique)</li>
+                                <li>Password (generate secure password)</li>
+                                <li>Is Admin? (checkbox)</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>"Create"</strong></li>
+                        <li>System will send welcome email to user</li>
+                    </ol>
+
+                    <div class="card warning">
+                        <h4>⚠️ New User Best Practices</h4>
+                        <ul>
+                            <li>Use strong, unique usernames</li>
+                            <li>Generate strong passwords (12+ characters, mixed case, numbers, symbols)</li>
+                            <li>Send welcome email with temporary password</li>
+                            <li>Ask user to change password on first login</li>
+                        </ul>
+                    </div>
+
+                    <h3>Edit User Details</h3>
+                    <ol>
+                        <li>Find user in the list</li>
+                        <li>Click the user's name or <strong>"Edit"</strong> button</li>
+                        <li>Modify:
+                            <ul>
+                                <li>Email address</li>
+                                <li>Admin status</li>
+                                <li>Account status</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>"Save Changes"</strong></li>
+                    </ol>
+
+                    <h3>Deactivate a User</h3>
+                    <ol>
+                        <li>Find user in the list</li>
+                        <li>Click <strong>"Deactivate"</strong> button</li>
+                        <li>Confirm the action</li>
+                        <li>User will be unable to log in</li>
+                        <li>Their campaigns will be paused</li>
+                    </ol>
+
+                    <h3>Reactivate a User</h3>
+                    <ol>
+                        <li>Find the deactivated user (may be in separate list)</li>
+                        <li>Click <strong>"Activate"</strong> button</li>
+                        <li>User can log in again</li>
+                    </ol>
+
+                    <h3>Delete a User (Permanent)</h3>
+                    <div class="card danger">
+                        <h4>⚠️ WARNING: This is irreversible!</h4>
+                        <ol>
+                            <li>Find user in list</li>
+                            <li>Click <strong>"Delete"</strong> button</li>
+                            <li>Confirm twice (this action cannot be undone)</li>
+                            <li>User and all their data will be permanently removed</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- Registration Management -->
+                <section id="registration">
+                    <h2><i class="fas fa-pen"></i> Manage Registration Requests</h2>
+
+                    <h3>Review Pending Registrations</h3>
+                    <ol>
+                        <li>Click <strong>"Admin"</strong> → <strong>"User Requests"</strong></li>
+                        <li>View pending registration requests with:
+                            <ul>
+                                <li>Requested username</li>
+                                <li>Email address</li>
+                                <li>Request date</li>
+                                <li>Request reason/notes</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h3>Approve a Registration</h3>
+                    <ol>
+                        <li>Click request to view details</li>
+                        <li>Review the information</li>
+                        <li>Click <strong>"Approve"</strong> button</li>
+                        <li>Choose an action:
+                            <ul>
+                                <li>Create account for them</li>
+                                <li>Send approval email only</li>
+                            </ul>
+                        </li>
+                        <li>User receives approval notification</li>
+                        <li>User can now log in</li>
+                    </ol>
+
+                    <h3>Reject a Registration</h3>
+                    <ol>
+                        <li>Click request to view details</li>
+                        <li>Click <strong>"Reject"</strong> button</li>
+                        <li>Enter reason for rejection (optional)</li>
+                        <li>Click <strong>"Send Rejection"</strong></li>
+                        <li>User receives rejection email with reason</li>
+                    </ol>
+
+                    <h3>Email Template for Approvals</h3>
+                    <p>Users receive an automatic email like:</p>
+                    <pre>Subject: Your Email Campaign Manager Account Approved!
+
+Hi [Name],
+
+Your registration request for Email Campaign Manager has been approved!
+
+Username: [username]
+Email: [email]
+
+You can now log in at:
+[login-url]
+
+Best regards,
+Admin Team</pre>
+                </section>
+
+                <!-- Permissions -->
+                <section id="permissions">
+                    <h2><i class="fas fa-lock"></i> Permission Management</h2>
+
+                    <h3>Available Permissions</h3>
+                    <table>
+                        <tr>
+                            <th>Permission</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                        </tr>
+                        <tr>
+                            <td>can_create_campaigns</td>
+                            <td>Create and schedule email campaigns</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>can_manage_templates</td>
+                            <td>Create, edit, delete templates</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>can_manage_segments</td>
+                            <td>Create and manage email segments</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>can_import_contacts</td>
+                            <td>Upload contacts via CSV</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>can_view_analytics</td>
+                            <td>View campaign analytics and reports</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>can_manage_smtp</td>
+                            <td>Configure SMTP settings</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                    </table>
+
+                    <h3>Set User Permissions</h3>
+                    <ol>
+                        <li>Go to <strong>"Manage Users"</strong></li>
+                        <li>Click on a user's name</li>
+                        <li>Click <strong>"Edit Permissions"</strong></li>
+                        <li>Check/uncheck permissions as needed</li>
+                        <li>Click <strong>"Save Permissions"</strong></li>
+                        <li>Changes take effect immediately</li>
+                    </ol>
+
+                    <h3>Permission Presets</h3>
+                    <div class="card success">
+                        <h4>👤 Standard User</h4>
+                        <p>✅ All campaign and template features</p>
+                        <p>❌ Cannot manage other users or global settings</p>
+                    </div>
+                    <div class="card success">
+                        <h4>🔓 Limited User</h4>
+                        <p>✅ Can only view analytics and create campaigns</p>
+                        <p>❌ Cannot upload new contacts or create templates</p>
+                    </div>
+                    <div class="card success">
+                        <h4>👩‍💼 Manager</h4>
+                        <p>✅ All standard features + admin capabilities</p>
+                        <p>❌ Cannot delete users (only main admin)</p>
+                    </div>
+
+                    <h3>Reset User Password</h3>
+                    <ol>
+                        <li>Find user in the management list</li>
+                        <li>Click <strong>"Reset Password"</strong></li>
+                        <li>Generate a temporary password</li>
+                        <li>Send password to user securely</li>
+                        <li>Ask user to change password on next login</li>
+                    </ol>
+                </section>
+
+                <!-- Email Lists -->
+                <section id="lists">
+                    <h2><i class="fas fa-list"></i> Admin Email Lists</h2>
+
+                    <h3>What are Admin Email Lists?</h3>
+                    <p>Admin Email Lists are system-wide contact lists managed by admins. Unlike user segments, these lists:</p>
+                    <ul>
+                        <li>Can be shared across multiple users</li>
+                        <li>Are managed centrally by admins</li>
+                        <li>Ideal for shared contacts (customers, partners)</li>
+                        <li>Can have controlled access levels</li>
+                    </ul>
+
+                    <h3>Create Admin Email List</h3>
+                    <ol>
+                        <li>Click <strong>"Admin"</strong> → <strong>"Email Lists"</strong></li>
+                        <li>Click <strong>"Create New List"</strong></li>
+                        <li>Enter list details:
+                            <ul>
+                                <li>List name</li>
+                                <li>Description</li>
+                                <li>Access level (private/shared)</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>"Create"</strong></li>
+                    </ol>
+
+                    <h3>Add Contacts to List</h3>
+                    <p><strong>Option A: Import CSV</strong></p>
+                    <ol>
+                        <li>Click on the list name</li>
+                        <li>Click <strong>"Import Contacts"</strong></li>
+                        <li>Upload CSV file</li>
+                    </ol>
+
+                    <p><strong>Option B: Add Manually</strong></p>
+                    <ol>
+                        <li>Click on the list</li>
+                        <li>Click <strong>"Add Contact"</strong></li>
+                        <li>Enter email and details</li>
+                    </ol>
+
+                    <h3>Manage List Access</h3>
+                    <ol>
+                        <li>Select the list</li>
+                        <li>Click <strong>"Edit"</strong></li>
+                        <li>Set access level:
+                            <ul>
+                                <li><strong>Private:</strong> Only you can use</li>
+                                <li><strong>Shared:</strong> All users can use</li>
+                                <li><strong>Restricted:</strong> Specific users only</li>
+                            </ul>
+                        </li>
+                        <li>Save changes</li>
+                    </ol>
+                </section>
+
+                <!-- Security -->
+                <section id="security">
+                    <h2><i class="fas fa-shield-alt"></i> Security & Best Practices</h2>
+
+                    <h3>Admin Account Security</h3>
+                    <div class="card warning">
+                        <h4>🔒 Protect Your Admin Account</h4>
+                        <ul>
+                            <li>Use a strong password (20+ characters recommended)</li>
+                            <li>Enable two-factor authentication if available</li>
+                            <li>Never share your account credentials</li>
+                            <li>Log out after each administration session</li>
+                            <li>Monitor login activity regularly</li>
+                        </ul>
+                    </div>
+
+                    <h3>User Data Protection</h3>
+                    <ul>
+                        <li>Never share user emails or personal information</li>
+                        <li>Deactivate accounts of inactive users</li>
+                        <li>Regularly audit user permissions</li>
+                        <li>Delete accounts of terminated employees</li>
+                        <li>Keep audit logs of admin actions</li>
+                    </ul>
+
+                    <h3>SMTP Security</h3>
+                    <div class="card warning">
+                        <h4>⚠️ SMTP Best Practices</h4>
+                        <ul>
+                            <li>Use TLS encryption (port 587)</li>
+                            <li>Never use plain text passwords</li>
+                            <li>Use app-specific passwords</li>
+                            <li>Rotate SMTP credentials annually</li>
+                            <li>Monitor SMTP usage for anomalies</li>
+                        </ul>
+                    </div>
+
+                    <h3>Regular Maintenance</h3>
+                    <table>
+                        <tr>
+                            <th>Task</th>
+                            <th>Frequency</th>
+                            <th>Purpose</th>
+                        </tr>
+                        <tr>
+                            <td>Review user accounts</td>
+                            <td>Monthly</td>
+                            <td>Remove inactive users</td>
+                        </tr>
+                        <tr>
+                            <td>Audit permissions</td>
+                            <td>Quarterly</td>
+                            <td>Ensure correct access levels</td>
+                        </tr>
+                        <tr>
+                            <td>Database backup</td>
+                            <td>Weekly</td>
+                            <td>Data recovery protection</td>
+                        </tr>
+                        <tr>
+                            <td>Check system logs</td>
+                            <td>Daily</td>
+                            <td>Detect issues early</td>
+                        </tr>
+                    </table>
+
+                    <h3>Troubleshooting Admin Issues</h3>
+                    <div class="card info">
+                        <h4>User Cannot Log In</h4>
+                        <p>Check: Is account active? Email verified? Account approved? Password correct?</p>
+                    </div>
+                    <div class="card info">
+                        <h4>Emails Not Sending</h4>
+                        <p>Check: SMTP configuration correct? Credentials valid? Port not blocked?</p>
+                    </div>
+                    <div class="card info">
+                        <h4>High Bounce Rate</h4>
+                        <p>Check: Email list quality? Are addresses valid? Check for typos?</p>
+                    </div>
+                </section>
+
+                <!-- Summary -->
+                <section>
+                    <h2><i class="fas fa-graduation-cap"></i> Admin Checklist</h2>
+                    <div class="card success">
+                        <h4>First Day as Admin</h4>
+                        <ul>
+                            <li>☐ Change admin password</li>
+                            <li>☐ Set up SMTP configuration</li>
+                            <li>☐ Review pending user registrations</li>
+                            <li>☐ Create initial admin email lists</li>
+                            <li>☐ Invite other admins if needed</li>
+                        </ul>
+                    </div>
+                    <div class="card success">
+                        <h4>Weekly Admin Tasks</h4>
+                        <ul>
+                            <li>☐ Review pending approvals</li>
+                            <li>☐ Monitor system activity</li>
+                            <li>☐ Backup database</li>
+                            <li>☐ Check for user issues</li>
+                        </ul>
+                    </div>
+                    <div class="card success">
+                        <h4>Monthly Admin Tasks</h4>
+                        <ul>
+                            <li>☐ Audit user accounts</li>
+                            <li>☐ Review permissions</li>
+                            <li>☐ Clean up inactive users</li>
+                            <li>☐ Check system performance</li>
+                        </ul>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Email Campaign Manager | <a href="https://github.com/narendrancs89/EmailCampaignManager">View on GitHub</a></p>
+        </div>
+    </footer>
+</body>
+</html>
