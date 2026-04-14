@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Campaign Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <h1>📧 Email Campaign Manager</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#deployment">Deployment</a></li>
+                <li><a href="https://github.com/narendrancs89/EmailCampaignManager" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h2>Comprehensive Email Marketing Platform</h2>
+            <p>Create, design, and optimize email campaigns with advanced features and user-friendly tools</p>
+            <a href="#installation" class="btn btn-primary">Get Started</a>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-user-shield"></i>
+                    <h3>Authentication</h3>
+                    <p>User authentication with email verification and admin approval</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Email Templates</h3>
+                    <p>HTML email template creation and management</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-layer-group"></i>
+                    <h3>Segmentation</h3>
+                    <p>Email segment management for targeted campaigns</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-clock"></i>
+                    <h3>Scheduling</h3>
+                    <p>Campaign scheduling and monitoring</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>Analytics</h3>
+                    <p>Comprehensive email tracking and analytics dashboard</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-cog"></i>
+                    <h3>SMTP Config</h3>
+                    <p>Flexible SMTP configuration and email service integration</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="installation" class="installation">
+        <div class="container">
+            <h2>Installation</h2>
+            
+            <div class="step">
+                <h3>1. Prerequisites</h3>
+                <ul>
+                    <li>Python 3.8+</li>
+                    <li>PostgreSQL database (for production)</li>
+                    <li>SMTP server or email service (Brevo/SendGrid)</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3>2. Clone Repository</h3>
+                <pre><code>git clone https://github.com/narendrancs89/EmailCampaignManager.git
+cd EmailCampaignManager</code></pre>
+            </div>
+
+            <div class="step">
+                <h3>3. Install Dependencies</h3>
+                <pre><code>pip install -r render_requirements.txt</code></pre>
+            </div>
+
+            <div class="step">
+                <h3>4. Set Environment Variables</h3>
+                <p>Create a <code>.env</code> file:</p>
+                <pre><code>DATABASE_URL=sqlite:///email_campaign.db
+SESSION_SECRET=your_secret_key_here
+BREVO_API_KEY=your_brevo_api_key_optional</code></pre>
+            </div>
+
+            <div class="step">
+                <h3>5. Initialize Database</h3>
+                <pre><code>python create_admin_user.py</code></pre>
+            </div>
+
+            <div class="step">
+                <h3>6. Run Application</h3>
+                <pre><code>python -m flask --app main run --host=0.0.0.0 --port=5000</code></pre>
+                <p>Access at: <code>http://localhost:5000</code></p>
+            </div>
+        </div>
+    </section>
+
+    <section id="deployment" class="deployment">
+        <div class="container">
+            <h2>Deployment Options</h2>
+            
+            <div class="deployment-option">
+                <h3>Render.com (Recommended)</h3>
+                <p>The project includes a <code>render.yaml</code> configuration for easy deployment.</p>
+                <ol>
+                    <li>Connect your GitHub repository to Render</li>
+                    <li>Select "Web Service"</li>
+                    <li>Choose this repository</li>
+                    <li>Set environment variables:
+                        <ul>
+                            <li><code>DATABASE_URL</code> - PostgreSQL connection string</li>
+                            <li><code>SESSION_SECRET</code> - Random secret key</li>
+                            <li><code>BREVO_API_KEY</code> - Optional, for email verification</li>
+                        </ul>
+                    </li>
+                    <li>Deploy!</li>
+                </ol>
+            </div>
+
+            <div class="deployment-option">
+                <h3>GitHub Codespaces</h3>
+                <p>For development and testing:</p>
+                <ol>
+                    <li>Open in GitHub Codespaces</li>
+                    <li>Run the Flask application</li>
+                    <li>Access via the provided Codespace URL</li>
+                </ol>
+            </div>
+
+            <div class="deployment-option">
+                <h3>Local Development</h3>
+                <p>Perfect for customization:</p>
+                <ol>
+                    <li>Follow the Installation steps above</li>
+                    <li>Uses SQLite by default</li>
+                    <li>Perfect for testing and development</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section class="credentials">
+        <div class="container">
+            <h2>Default Credentials</h2>
+            <div class="credentials-grid">
+                <div class="credential-card">
+                    <h3>Admin User</h3>
+                    <p><strong>Username:</strong> admin</p>
+                    <p><strong>Password:</strong> Admin123!</p>
+                </div>
+                <div class="credential-card">
+                    <h3>Test User</h3>
+                    <p><strong>Username:</strong> testuser</p>
+                    <p><strong>Password:</strong> Test123!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-stack">
+        <div class="container">
+            <h2>Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Backend</h4>
+                    <ul>
+                        <li>Flask</li>
+                        <li>Flask-SQLAlchemy</li>
+                        <li>Flask-Login</li>
+                        <li>APScheduler</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h4>Database</h4>
+                    <ul>
+                        <li>PostgreSQL (Production)</li>
+                        <li>SQLite (Development)</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h4>Frontend</h4>
+                    <ul>
+                        <li>HTML/CSS</li>
+                        <li>JavaScript</li>
+                        <li>Bootstrap</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h4>Email</h4>
+                    <ul>
+                        <li>SMTP</li>
+                        <li>Brevo API</li>
+                        <li>SendGrid</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Email Campaign Manager. <a href="https://github.com/narendrancs89/EmailCampaignManager" target="_blank">View on GitHub</a></p>
+        </div>
+    </footer>
+</body>
+</html>

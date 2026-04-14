@@ -1,0 +1,346 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navbar */
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    transition: opacity 0.3s;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    opacity: 0.8;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 5rem 0;
+    text-align: center;
+}
+
+.hero h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #fff;
+    color: #667eea;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Features Section */
+.features {
+    padding: 4rem 0;
+    background-color: white;
+}
+
+.features h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: #333;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #eee;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card i {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.feature-card p {
+    color: #666;
+}
+
+/* Installation Section */
+.installation {
+    padding: 4rem 0;
+    background-color: #f9f9f9;
+}
+
+.installation h2,
+.deployment h2,
+.credentials h2,
+.tech-stack h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: #333;
+}
+
+.step {
+    background: white;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.step h3 {
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.step pre {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.step code {
+    font-family: 'Courier New', monospace;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.step ul {
+    margin-left: 2rem;
+}
+
+.step li {
+    margin-bottom: 0.5rem;
+}
+
+/* Deployment Section */
+.deployment {
+    padding: 4rem 0;
+    background-color: white;
+}
+
+.deployment-option {
+    background: #f8f9fa;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    border-left: 4px solid #764ba2;
+}
+
+.deployment-option h3 {
+    color: #764ba2;
+    margin-bottom: 1rem;
+}
+
+.deployment-option ol {
+    margin-left: 2rem;
+}
+
+.deployment-option li {
+    margin-bottom: 0.8rem;
+}
+
+.deployment-option ul {
+    margin-left: 2rem;
+    margin-top: 0.5rem;
+}
+
+/* Credentials Section */
+.credentials {
+    padding: 4rem 0;
+    background-color: #f9f9f9;
+}
+
+.credentials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.credential-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.credential-card h3 {
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.credential-card p {
+    margin: 0.5rem 0;
+    font-weight: 500;
+}
+
+/* Tech Stack Section */
+.tech-stack {
+    padding: 4rem 0;
+    background-color: white;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.tech-item {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 10px;
+    border-top: 3px solid #667eea;
+}
+
+.tech-item h4 {
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.tech-item ul {
+    list-style: none;
+}
+
+.tech-item li:before {
+    content: "✓ ";
+    color: #667eea;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.tech-item li {
+    margin-bottom: 0.5rem;
+}
+
+/* Footer */
+footer {
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 4rem;
+}
+
+footer a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar .container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .hero h2 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .features h2,
+    .installation h2,
+    .deployment h2,
+    .credentials h2,
+    .tech-stack h2 {
+        font-size: 2rem;
+    }
+}
